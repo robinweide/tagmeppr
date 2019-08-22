@@ -3,7 +3,7 @@ print.tagMepprIndex <- function(x){
   cat(paste0('tagMepprIndex\n\n'))
   cat(paste0('\tProtocol: ', x$ITR,"\n\n"))
   cat(paste0('\tDirectory: ', dirname(x$index),"\n"))
-  cat(paste0('\tfasta: ', basename(x$index),"\n\n"))
+  cat(paste0('\tFasta: ', basename(x$index),"\n\n"))
   cat(paste0('\tTarget insertion site: ', x$targetInsertionSite,"\n"))
   cat(paste0('\tTIS: ', gsub(x = basename(x$index), pattern = ".fa.gz",
                              replacement = ".tis", fixed = T),"\n"))
@@ -15,7 +15,23 @@ print.tagMepprSample <- function(x){
 
   # name
   # protocol
-  # if aligned: num(aligned), num(informative)
-  # if FI: num(sig sites)
+  cat(paste0('tagMepprSample\n\n'))
+  cat(paste0('\tName: ', x$name,"\n"))
+  cat(paste0('\tProtocol: ', x$protocol,"\n"))
 
+  # if aligned: num(aligned), num(informative)
+  if(is.null(x$alignedReadsFWD)){
+    cat(paste0("\tAligned: FALSE\n"))
+  } else {
+
+  }
+
+  # if FI: num(sig sites)
+  if(is.null(x$results)){
+    cat(paste0("\tAnalysed: FALSE\n"))
+  } else {
+
+  }
+
+  cat(paste0("\n"))
 }

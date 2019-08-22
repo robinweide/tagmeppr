@@ -67,10 +67,10 @@ newTagMeppr <- function(F1, F2, R1, R2, name, protocol = 'PiggyBac'){
             Thread carefully!')
   }
 
-  TMobj = structure(list(F1 ,
-                         F2 ,
-                         R1 ,
-                         R2 ,
+  TMobj = structure(list(F1 = F1,
+                         F2 = F2,
+                         R1 = R1,
+                         R2 = R2,
                          name = name,
                          protocol = protocol),
                     class = c("tagMepprSample", "list"))
