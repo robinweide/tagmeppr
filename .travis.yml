@@ -1,1 +1,15 @@
 language: r
+
+bioc_packages:
+  - Biostrings
+  - GenomeInfoDb
+  - GenomicAlignments
+  - GenomicRanges
+  - BiocGenerics
+  - IRanges
+  - Rsamtools
+  - rtracklayer
+  - S4Vectors
+
+after_success:
+  - Rscript -e 'covr::codecov()'
