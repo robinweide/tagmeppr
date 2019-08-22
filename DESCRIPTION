@@ -1,18 +1,20 @@
 Package: tagMeppr
 Type: Package
-Title: What the Package Does (Title Case)
+Title: A computational pipeline to map tagmap-insertions.
 Version: 0.1.0
-Authors@R: person("Robin H.", "van der Weide", email = "r.vd.weide@nki.nl", role = c("aut", "cre"))
+Authors@R: person("Robin H.", "van der Weide", email = "r.vd.weide@nki.nl", role = c("aut", "cre"), comment = c(ORCID = "0000-0002-6466-7280s"))
 Author: Robin H. van der Weide [aut, cre]
 Maintainer: Robin H. van der Weide <r.vd.weide@nki.nl>
-Description: More about what it does (maybe more than one line)
-    Use four spaces when indenting paragraphs within the Description.
+Description: Align, interrogate and visualise your tagmap sequencing data, without leaving R.
 License: MIT + file LICENSE
-Depends: R (>= 3.4.4)
+Depends: R (>= 3.4.0)
+URL: https://github.com/robinweide/tagmeppr
+BugReports: https://github.com/robinweide/tagmeppr/issues
 Encoding: UTF-8
 LazyData: true
 RoxygenNote: 6.1.1
-Imports: Biostrings, 
+Imports:
+  Biostrings, 
   BSgenome,
   BSgenome.Hsapiens.UCSC.hg19,
   dplyr, 
