@@ -35,8 +35,7 @@
 #' \describe{
 #' \item{alignmentFolder}{The path to the folder of BAM-files}
 #' \item{insertName}{The name of the transposon in the hybrid reference}
-#' \item{transposonPath}{The location of the transposon.fa}
-#' \item{fai}{The index of the hybrid reference}
+#' \item{seqinfo}{The seqinfo of the hybrid reference}
 #' \item{FWDBAM}{GenomicAlignments of the mapping of forward reads}
 #' \item{REVBAM}{GenomicAlignments of the mapping of reverse reads}
 #' \item{alignedReadsFWD}{Granges-oject with informative forward reads}
@@ -135,7 +134,7 @@ align = function(exp, ref, cores = 20, empericalCentre = F, verbose = F){
                                          '-H',
                                          paste0(folder,"/FWD.bam")),
           stdout = paste0(folder,"/FWD.sam"))
-  exp
+
   system2(command = 'samtools', args = c('view',
                                          paste0(folder,"/FWD.bam")),
           stdout = paste0(folder,"/FWDgrep.sam"))
@@ -197,8 +196,7 @@ align = function(exp, ref, cores = 20, empericalCentre = F, verbose = F){
 
   exp$alignmentFolder = folder
   exp$insertName = ref$insertName
-  exp$transposonPath = ref$transposonFA
-  exp$fai = utils::read.delim(paste0(ref$index, '.fai'), h = F)
+  exp$seqinfo = ref$seqinfo
 
   # post align  ------------------------------------
   if(verbose){message('Running postAlign')}
@@ -232,7 +230,7 @@ postAlign = function(exp, empericalCentre = F){
   BAMlist = lapply(BAMlist, as.data.frame)
 
   if(empericalCentre == T){
-    cassMid = empericalTransposonCentre(exp)
+    cassMid = empericalTransposonCentre(exp, ref)
   } else if(empericalCentre == F){
     cassLen = cassInfo@seqlengths
     cassMid = round(cassLen/2)

@@ -51,19 +51,49 @@ splitXSA = function(x, field = 'XA'){
   return(out)
 }
 
-empericalTransposonCentre = function(exp){
 
-  scaffoldsSeq = Biostrings::readAAStringSet(filepath = exp$transposonPath, use.names = T)
-  SL = S4Vectors::width(scaffoldsSeq[names(scaffoldsSeq) == exp$insertName])
-  names(SL) = exp$insertName
-  gr.windows <- GenomicRanges::tileGenome(SL, tilewidth=10, cut.last.tile.in.chrom=TRUE)
+empericalTransposonCentre = function(exp, ref){
 
-  COF = IRanges::countOverlaps(gr.windows, exp$FWDBAM)
-  COR = IRanges::countOverlaps(gr.windows, exp$REVBAM)
+  transposonSeq = NULL
+  if(ref$ITR == "PiggyBac"){
+    transposonSeq = tagMeppr::PiggyBacITRs
+  } else if(ref$ITR == "SleepingBeauty"){
+    transposonSeq = tagMeppr::SleepingBeautyITRs
+  } else if(grepl(ref$ITR, pattern = ".fa")){
+    # check if exists
+    if(file.exists(ref$ITR)){
+      transposonSeq = Biostrings::readDNAStringSet(filepath = ITR, use.names = T)
+    } else {
+      stop('The file ', ref$ITR, ' does not exist.')
+    }
+  }
 
-  hits = sort(c(gr.windows[which.max(COF)],
-                gr.windows[which.max(COR)]))
-  hits = unname(sort(unlist(as.data.frame( IRanges::ranges(hits)))[1:4])[c(1,4)])
-  return( unname(mean(hits)))
+  MID = 0
+  # 1. get mid of largest N-padded sequence
+  if(Biostrings::letterFrequency(transposonSeq, letters = 'N') > 0){
+
+    Nranges = IRanges::reduce(Biostrings::vmatchPattern("N",transposonSeq)[[1]])
+    Nranges = Nranges[base::which.max(S4Vectors::width(Nranges))]
+
+    MID = mean(Nranges)
+
+  } else {
+  # 2. if no Ns, get coverage-distribution
+    SL = S4Vectors::width(transposonSeq)
+    names(SL) = base::names(transposonSeq)
+
+    gr.windows <- GenomicRanges::tileGenome(SL, tilewidth=10, cut.last.tile.in.chrom=TRUE)
+
+    COF = IRanges::countOverlaps(gr.windows, exp$FWDBAM)
+    COR = IRanges::countOverlaps(gr.windows, exp$REVBAM)
+
+    hits = sort(c(gr.windows[which.max(COF)],
+                  gr.windows[which.max(COR)]))
+    hits = unname(sort(unlist(as.data.frame( IRanges::ranges(hits)))[1:4])[c(1,4)])
+
+    MID = unname(mean(hits))
+  }
+
+  return( MID)
 
 }

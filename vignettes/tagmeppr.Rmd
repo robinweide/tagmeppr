@@ -18,12 +18,12 @@ knitr::opts_chunk$set(
 
 
 ```{r logo, out.width = "25%", fig.align = 'center', echo = F}
-knitr::include_graphics("logo_tagMeppr.pdf")
+knitr::include_graphics("./logo_tagMeppr.pdf")
 ```
 
 Hi there! Welcome! 
 
-```{r lib, eval = F}
+```{r lib, eval = T}
 library(tagMeppr)
 ```
 
@@ -39,9 +39,8 @@ organism (e.g. PiggyBac in human cells) you may have.
 
 Loading a tagMepprIndex is easy with loadIndex().
 
-```{r loadIndex}
-
-
+```{r loadIndex, eval=F}
+reference_hg19_PB = loadIndex('BSgenome.Hsapiens.UCSC.hg19_PiggyBac_tagMeppRindex.fa.gz')
 ```
 
 You can use print() on this tagMepprIndex, which gives you a lot of information: 
@@ -85,4 +84,11 @@ The object will be updated, which keeps your evironment tidy.
 print(C1)
 ```
 
+
+
+
+todo: 
+- remove non-ttaa+pad from fasta
+- empirical center auto on 1K-Npad
+- fai: make internal w/ biostring
 

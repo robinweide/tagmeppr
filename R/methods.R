@@ -35,3 +35,14 @@ print.tagMepprSample <- function(x){
 
   cat(paste0("\n"))
 }
+
+# results.tagMepprSample <- function(x){
+#
+#   if(is.null(x$results)){
+#     cat(paste0("\tAnalysed: FALSE\n"))
+#   } else {
+#     cat(x$results)
+#   }
+#
+#
+# }

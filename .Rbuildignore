@@ -6,3 +6,5 @@
 ^vignettes/clone*
 ^vignettes/logo*
 .travis.yml
+^docs
+^premadeReferences

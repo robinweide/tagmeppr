@@ -1,5 +1,9 @@
 language: r
 
+before_script:
+  - sudo apt-get install -y ghostscript
+  - sudo apt-get install qpdf
+
 bioc_packages:
   - Biostrings
   - GenomeInfoDb
@@ -13,6 +17,9 @@ bioc_packages:
   - BSgenome
   - BSgenome.Hsapiens.UCSC.hg19
 
-
+addons:
+    apt:
+        packages:
+        - ghostscript
 after_success:
   - Rscript -e 'covr::codecov()'

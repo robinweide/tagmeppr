@@ -36,6 +36,7 @@ The function also returns a tagMepprIndex-object with the following slots:
 \item{TIS}{A GRanges-object of all target insertion sites.}
 \item{targetInsertionSite}{The targetInsertionSite}
 \item{insertName}{The name of the transposon in the hybrid reference}
+\item{seqinfo}{A seqinfo object of all chromosomes in index.}
 }
 }
 \description{

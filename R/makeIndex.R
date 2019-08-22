@@ -31,6 +31,7 @@
 #' \item{TIS}{A GRanges-object of all target insertion sites.}
 #' \item{targetInsertionSite}{The targetInsertionSite}
 #' \item{insertName}{The name of the transposon in the hybrid reference}
+#' \item{seqinfo}{A seqinfo object of all chromosomes in index.}
 #'}
 #'
 #' @importFrom Biostrings readDNAStringSet vmatchPattern writeXStringSet
@@ -53,7 +54,7 @@ makeIndex = function(indexPath, bsgenome = NULL, ITR = "PiggyBac", targetInserti
     bsgenome = "BSgenome.Hsapiens.UCSC.hg19"
   }
   scaffoldsSeq = BSgenome::getSeq(get(bsgenome))
-
+  scaffFai =  GenomeInfoDb::seqinfo(get(bsgenome))
 
   ##################################################################### load ITR
   transposonSeq = NULL
@@ -72,6 +73,10 @@ makeIndex = function(indexPath, bsgenome = NULL, ITR = "PiggyBac", targetInserti
     stop('Please set ITR to either "PiggyBac", "SleepingBeauty", or as a path to a .fasta-file!')
   }
 
+  transFai =  GenomeInfoDb::seqinfo(transposonSeq)
+  GenomeInfoDb::isCircular(transFai) <- F
+  GenomeInfoDb::genome(transFai) <- base::names(transposonSeq)
+
   index = c(transposonSeq,scaffoldsSeq)
 
   ################################################################## write index
@@ -82,6 +87,16 @@ makeIndex = function(indexPath, bsgenome = NULL, ITR = "PiggyBac", targetInserti
              pattern = "//",replacement = '/')
 
   Biostrings::writeXStringSet(x = index, filepath = PAD, compress = T)
+
+
+  ########################################################################## FAI
+
+  FAI = suppressWarnings(merge(transFai, scaffFai))
+  FAIdf = as.data.frame(FAI)
+  FAIPAD =  gsub(x = PAD, pattern = ".fa.gz",
+                 replacement = ".fa.gz.fai", fixed = T)
+
+  write.table(x = FAIdf,  file = FAIPAD,quote = F, sep = "\t")
 
   ######################################################################## index
 
@@ -139,7 +154,8 @@ makeIndex = function(indexPath, bsgenome = NULL, ITR = "PiggyBac", targetInserti
                          ITR = ITR,
                          TIS = TIS,
                          targetInsertionSite = targetInsertionSite,
-                         insertName = names(transposonSeq)),
+                         insertName = names(transposonSeq),
+                         seqinfo = FAI),
                     class = c("tagMepprIndex", "list"))
 
   ####################################################################### return
@@ -172,6 +188,7 @@ makeIndex = function(indexPath, bsgenome = NULL, ITR = "PiggyBac", targetInserti
 #' \item{TIS}{A GRanges-object of all target insertion sites.}
 #' \item{targetInsertionSite}{The targetInsertionSite}
 #' \item{insertName}{The name of the transposon in the hybrid reference}
+#' \item{seqinfo}{A seqinfo object of all chromosomes in index.}
 #'}
 #'
 #' @importFrom GenomicRanges seqnames
@@ -202,12 +219,24 @@ loadIndex = function(indexPath){
 
   targetInsertionSite = S4Vectors::mcols(TIS[1])$name
 
+
+  ###################################################################### seqinfo
+  FAIPAD =  gsub(x = indexPath, pattern = ".fa.gz",
+                 replacement = ".fa.gz.fai", fixed = T)
+
+  FAIdf = read.delim(FAIPAD)
+  FAI = GenomeInfoDb::Seqinfo(rownames(FAIdf), seqlengths=FAIdf$seqlengths,
+                              isCircular=FAIdf$isCircular, genome=FAIdf$genome)
+
+
+
   ######################################################################## class
   thisTagMepprIndex = structure(list(index = indexPath,
                                      ITR = ITR,
                                      TIS = TIS,
                                      targetInsertionSite = targetInsertionSite,
-                                     insertName =insertName),
+                                     insertName =insertName,
+                                     seqinfo = FAI),
                                 class = c("tagMepprIndex", "list"))
 
   ####################################################################### return

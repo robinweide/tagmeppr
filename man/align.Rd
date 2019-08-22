@@ -30,8 +30,7 @@ The object will be updated with the following slots:
 \describe{
 \item{alignmentFolder}{The path to the folder of BAM-files}
 \item{insertName}{The name of the transposon in the hybrid reference}
-\item{transposonPath}{The location of the transposon.fa}
-\item{fai}{The index of the hybrid reference}
+\item{seqinfo}{The seqinfo of the hybrid reference}
 \item{FWDBAM}{GenomicAlignments of the mapping of forward reads}
 \item{REVBAM}{GenomicAlignments of the mapping of reverse reads}
 \item{alignedReadsFWD}{Granges-oject with informative forward reads}
