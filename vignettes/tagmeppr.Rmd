@@ -18,7 +18,7 @@ knitr::opts_chunk$set(
 
 
 ```{r logo, out.width = "25%", fig.align = 'center', echo = F}
-knitr::include_graphics("../logo/tagMeppr.png")
+knitr::include_graphics("logo_tagMeppr.pdf")
 ```
 
 Hi there! Welcome! 

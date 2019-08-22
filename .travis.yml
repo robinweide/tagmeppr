@@ -1,5 +1,7 @@
 language: r
 
+r_build_args: '--compact-vignettes="gs+qpdf"'
+
 bioc_packages:
   - Biostrings
   - GenomeInfoDb

@@ -38,6 +38,7 @@
 #' @importFrom GenomicRanges makeGRangesFromDataFrame
 #' @importFrom rtracklayer export.bed
 #' @importFrom S4Vectors width
+#' @importFrom BSgenome getSeq
 #' @export
 #'
 makeIndex = function(indexPath, bsgenome = NULL, ITR = "PiggyBac", targetInsertionSite = 'TTAA', blockSizeMult = NULL, verbose = F){
@@ -56,9 +57,9 @@ makeIndex = function(indexPath, bsgenome = NULL, ITR = "PiggyBac", targetInserti
   ##################################################################### load ITR
   transposonSeq = NULL
   if(ITR == "PiggyBac"){
-    transposonSeq = PiggyBacITRs
+    transposonSeq = tagMeppr::PiggyBacITRs
   } else if(ITR == "SleepingBeauty"){
-    transposonSeq = SleepingBeautyITRs
+    transposonSeq = tagMeppr::SleepingBeautyITRs
   } else if(grepl(ITR, pattern = ".fa")){
     # check if exists
     if(file.exists(ITR)){
@@ -160,7 +161,7 @@ makeIndex = function(indexPath, bsgenome = NULL, ITR = "PiggyBac", targetInserti
 #'                               ITR = 'PiggyBac')
 #'
 #' # stuff happens and reference_T42 is no longer loaded, so lets load it:
-#' reference_hg19_PB = loadIndex(indexPath = "/home/A.Dent/analysis42/BSgenome.Hsapiens.UCSC.hg19_PiggyBac_tagMeppRindex.fa.gz")
+#' reference_hg19_PB = loadIndex("BSgenome.Hsapiens.UCSC.hg19_PiggyBac_tagMeppRindex.fa.gz")
 #' }
 #' @return A tagMepprIndex-object with the following slots:
 #'

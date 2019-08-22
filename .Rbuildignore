@@ -2,6 +2,7 @@
 ^.*\.Rproj$
 ^\.Rproj\.user$
 ^userCases
-^logo
 ^vignettes/BS*
 ^vignettes/clone*
+^vignettes/logo*
+.travis.yml

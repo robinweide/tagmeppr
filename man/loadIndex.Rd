@@ -31,7 +31,7 @@ reference_hg19_PB = makeIndex(indexPath = '/home/A.Dent/analysis42/',
                               ITR = 'PiggyBac')
 
 # stuff happens and reference_T42 is no longer loaded, so lets load it:
-reference_hg19_PB = loadIndex(indexPath = "/home/A.Dent/analysis42/BSgenome.Hsapiens.UCSC.hg19_PiggyBac_tagMeppRindex.fa.gz")
+reference_hg19_PB = loadIndex("BSgenome.Hsapiens.UCSC.hg19_PiggyBac_tagMeppRindex.fa.gz")
 }
 }
 \author{
