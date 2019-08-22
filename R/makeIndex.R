@@ -41,6 +41,7 @@
 #' @importFrom S4Vectors width
 #' @importFrom BSgenome getSeq
 #' @importFrom BSgenome.Hsapiens.UCSC.hg19 BSgenome.Hsapiens.UCSC.hg19
+#' @importFrom utils write.table
 #' @export
 #'
 makeIndex = function(indexPath, bsgenome = NULL, ITR = "PiggyBac", targetInsertionSite = 'TTAA', blockSizeMult = NULL, verbose = F){
@@ -96,7 +97,7 @@ makeIndex = function(indexPath, bsgenome = NULL, ITR = "PiggyBac", targetInserti
   FAIPAD =  gsub(x = PAD, pattern = ".fa.gz",
                  replacement = ".fa.gz.fai", fixed = T)
 
-  write.table(x = FAIdf,  file = FAIPAD,quote = F, sep = "\t")
+  utils::write.table(x = FAIdf,  file = FAIPAD,quote = F, sep = "\t")
 
   ######################################################################## index
 

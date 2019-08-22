@@ -17,13 +17,13 @@ knitr::opts_chunk$set(
 ```
 
 
-```{r logo, out.width = "25%", fig.align = 'center', echo = F}
-knitr::include_graphics("./logo_tagMeppr.pdf")
+```{r logo, out.width = "25%", fig.align = 'center', echo = F, fig.path="vignettes"}
+knitr::include_graphics("logo_tagMeppr.pdf")
 ```
 
 Hi there! Welcome! 
 
-```{r lib, eval = T}
+```{r lib, eval = F}
 library(tagMeppr)
 ```
 

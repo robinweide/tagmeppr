@@ -62,7 +62,7 @@ empericalTransposonCentre = function(exp, ref){
   } else if(grepl(ref$ITR, pattern = ".fa")){
     # check if exists
     if(file.exists(ref$ITR)){
-      transposonSeq = Biostrings::readDNAStringSet(filepath = ITR, use.names = T)
+      transposonSeq = Biostrings::readDNAStringSet(filepath = ref$ITR, use.names = T)
     } else {
       stop('The file ', ref$ITR, ' does not exist.')
     }

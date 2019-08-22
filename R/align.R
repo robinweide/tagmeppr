@@ -200,14 +200,14 @@ align = function(exp, ref, cores = 20, empericalCentre = F, verbose = F){
 
   # post align  ------------------------------------
   if(verbose){message('Running postAlign')}
-  postAlign(exp, empericalCentre = empericalCentre)
+  postAlign(exp, ref, empericalCentre = empericalCentre)
 
   tmp = exp
   name <- sapply(match.call(expand.dots=TRUE)[-1], deparse)
   assign(name, tmp, envir = parent.frame())
 }
 
-postAlign = function(exp, empericalCentre = F){
+postAlign = function(exp, ref, empericalCentre = F){
 
   FWDBAM <- GenomicAlignments::readGAlignments(paste0(exp$alignmentFolder,"/FWD.bam"),
                                                param=Rsamtools::ScanBamParam(tag=c("SA",
