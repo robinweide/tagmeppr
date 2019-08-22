@@ -1,2 +1,7 @@
+^data-raw$
 ^.*\.Rproj$
 ^\.Rproj\.user$
+^userCases
+^logo
+^vignettes/BS*
+^vignettes/clone*

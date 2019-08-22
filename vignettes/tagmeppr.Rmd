@@ -1,0 +1,88 @@
+---
+title: "tagMeppr"
+author: "Robin H. van der Weide"
+date: "`r Sys.Date()`"
+output: rmarkdown::pdf_document
+vignette: >
+  %\VignetteIndexEntry{Vignette Title}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include=FALSE, echo=FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+
+```{r logo, out.width = "25%", fig.align = 'center', echo = F}
+knitr::include_graphics("../logo/tagMeppr.png")
+```
+
+Hi there! Welcome! 
+
+```{r lib, eval = F}
+library(tagMeppr)
+```
+
+# A hybrid reference genome 
+Remember: you only have to make a tagMepprIndex once per genome and protocol! 
+This means that you can use it for however many samples for that protocol and 
+organism (e.g. PiggyBac in human cells) you may have.
+
+```{r makeIndex}
+
+
+```
+
+Loading a tagMepprIndex is easy with loadIndex().
+
+```{r loadIndex}
+
+
+```
+
+You can use print() on this tagMepprIndex, which gives you a lot of information: 
+```{r, eval=FALSE}
+print(reference_hg19_PB)
+```
+
+# The tagMepprSample-object
+
+## Creating a new sample
+
+```{r newTagMeppr, eval=FALSE}
+C1 = newTagMeppr(F1 = 'clone1_FWD_R1.fq.gz',
+                 F2 = 'clone1_FWD_R2.fq.gz',
+                 R1 = 'clone1_REV_R1.fq.gz',
+                 R2 = 'clone1_REV_R2.fq.gz',
+                 name = "clone1",
+                 protocol = 'PiggyBac')
+```
+
+This is the print:
+```{r, eval=FALSE}
+print(C1)
+```
+
+# Aligning
+Omg. Mapping without leaving R! Please check if you have BWA and samtools intalled.
+Note no <- signs
+
+```{r align, eval=FALSE}
+align(exp = C1, 
+      ref = reference_hg19_PB, 
+      cores = 30, 
+      empericalCentre = T)
+```
+
+
+
+The object will be updated, which keeps your evironment tidy.
+```{r, eval=FALSE}
+print(C1)
+```
+
+
