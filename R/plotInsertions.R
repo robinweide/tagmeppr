@@ -15,18 +15,18 @@
 #'                               bsgenome = 'BSgenome.Hsapiens.UCSC.hg19',
 #'                               ITR = 'PiggyBac')
 #'
-#' C1 = newTagMeppr(F1 = '/home/A.Dent/analysis42/clone1_FWD_R1.fq.gz',
-#'                  F2 = '/home/A.Dent/analysis42/clone1_FWD_R2.fq.gz',
-#'                  R1 = '/home/A.Dent/analysis42/clone1_REV_R1.fq.gz',
-#'                  R2 = '/home/A.Dent/analysis42/clone1_REC_R2.fq.gz',
-#'                  name = "clone1",
+#' C9 = newTagMeppr(F1 = 'clone9_FWD_R1.fq.gz',
+#'                  F2 = 'clone9_FWD_R2.fq.gz',
+#'                  R1 = 'clone9_REV_R1.fq.gz',
+#'                  R2 = 'clone9_REV_R2.fq.gz',
+#'                  name = "clone9",
 #'                  protocol = 'PiggyBac')
 #'
-#' align(exp = C1, ref = reference_hg19_PB, cores = 30, empericalCentre = T)
+#' align(exp = C9, ref = reference_hg19_PB, cores = 30, empericalCentre = T)
 #'
-#' findInsertions(exp = C1, ref = reference_hg19_PB, minP = 0.05)
+#' findInsertions(exp = C9, ref = reference_hg19_PB, minP = 0.05)
 #'
-#' plotInsertions(exp = C1, chrom = c('chr1','chr2'))
+#' plotInsertions(exp = C9, chrom = c('chr1','chr2'))
 #'
 #' }
 #' @return An object of the class ggplot.

@@ -10,6 +10,9 @@ bioc_packages:
   - Rsamtools
   - rtracklayer
   - S4Vectors
+  - BSgenome
+  - BSgenome.Hsapiens.UCSC.hg19
+
 
 after_success:
   - Rscript -e 'covr::codecov()'

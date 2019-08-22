@@ -13,13 +13,12 @@
 #'
 #' @examples
 #' \dontrun{
-#' C1 = newTagMeppr(F1 = '/home/A.Dent/analysis42/clone1_FWD_R1.fq.gz',
-#'                  F2 = '/home/A.Dent/analysis42/clone1_FWD_R2.fq.gz',
-#'                  R1 = '/home/A.Dent/analysis42/clone1_REV_R1.fq.gz',
-#'                  R2 = '/home/A.Dent/analysis42/clone1_REC_R2.fq.gz',
-#'                  name = "clone1",
+#' C9 = newTagMeppr(F1 = 'clone9_FWD_R1.fq.gz',
+#'                  F2 = 'clone9_FWD_R2.fq.gz',
+#'                  R1 = 'clone9_REV_R1.fq.gz',
+#'                  R2 = 'clone9_REV_R2.fq.gz',
+#'                  name = "clone9",
 #'                  protocol = 'PiggyBac')
-#'
 #' }
 #' @return A tagMepprSample-object with the following slots:
 #'

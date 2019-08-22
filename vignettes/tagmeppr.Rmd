@@ -54,17 +54,17 @@ print(reference_hg19_PB)
 ## Creating a new sample
 
 ```{r newTagMeppr, eval=FALSE}
-C1 = newTagMeppr(F1 = 'clone1_FWD_R1.fq.gz',
-                 F2 = 'clone1_FWD_R2.fq.gz',
-                 R1 = 'clone1_REV_R1.fq.gz',
-                 R2 = 'clone1_REV_R2.fq.gz',
-                 name = "clone1",
+C9 = newTagMeppr(F1 = 'clone9_FWD_R1.fq.gz',
+                 F2 = 'clone9_FWD_R2.fq.gz',
+                 R1 = 'clone9_REV_R1.fq.gz',
+                 R2 = 'clone9_REV_R2.fq.gz',
+                 name = "clone9",
                  protocol = 'PiggyBac')
 ```
 
 This is the print:
 ```{r, eval=FALSE}
-print(C1)
+print(C9)
 ```
 
 # Aligning
@@ -72,7 +72,7 @@ Omg. Mapping without leaving R! Please check if you have BWA and samtools intall
 Note no <- signs
 
 ```{r align, eval=FALSE}
-align(exp = C1, 
+align(exp = C9, 
       ref = reference_hg19_PB, 
       cores = 30, 
       empericalCentre = T)
