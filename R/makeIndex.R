@@ -39,6 +39,7 @@
 #' @importFrom rtracklayer export.bed
 #' @importFrom S4Vectors width
 #' @importFrom BSgenome getSeq
+#' @importFrom BSgenome.Hsapiens.UCSC.hg19 BSgenome.Hsapiens.UCSC.hg19
 #' @export
 #'
 makeIndex = function(indexPath, bsgenome = NULL, ITR = "PiggyBac", targetInsertionSite = 'TTAA', blockSizeMult = NULL, verbose = F){
