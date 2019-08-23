@@ -38,7 +38,7 @@ C9 = newTagMeppr(F1 = 'clone9_FWD_R1.fq.gz',
 
 align(exp = C9, ref = reference_hg19_PB, cores = 30, empericalCentre = T)
 
-findInsertions(exp = C9, ref = reference_hg19_PB, minP = 0.05)
+findInsertions(exp = C9, ref = reference_hg19_PB)
 
 plotSite(exp = C9, site = 1)
 

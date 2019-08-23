@@ -1,6 +1,14 @@
-runIDgen <- function(n = 5000) {
+#' runIDgen
+#'
+#' Generate an unique 10-item ID
+#'
+#' @author Robin H. van der Weide, \email{r.vd.weide@nki.nl}
+#' @param n The number of ID's needed.
+#' @export
+runIDgen <- function(n = 1) {
   a <- do.call(paste0, replicate(5, sample(LETTERS, n, TRUE), FALSE))
-  paste0(a, sprintf("%04d", sample(9999, n, TRUE)), sample(LETTERS, n, TRUE))
+  a <- paste0(a, sprintf("%04d", sample(9999, n, TRUE)), sample(LETTERS, n, TRUE))
+  return(a)
 }
 
 
@@ -75,7 +83,7 @@ empericalTransposonCentre = function(exp, ref){
     Nranges = IRanges::reduce(Biostrings::vmatchPattern("N",transposonSeq)[[1]])
     Nranges = Nranges[base::which.max(S4Vectors::width(Nranges))]
 
-    MID = mean(Nranges)
+    MID = IRanges::mean(Nranges)
 
   } else {
   # 2. if no Ns, get coverage-distribution

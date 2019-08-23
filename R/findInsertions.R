@@ -5,7 +5,6 @@
 #' @author Robin H. van der Weide, \email{r.vd.weide@nki.nl}
 #' @param exp The tagMeppr-object of a sample: first run \code{\link{align}}.
 #' @param ref A reference object of \code{\link{makeIndex}} or \code{\link{loadIndex}}.
-#' @param minP The minimal adjusted p-value.
 #' @examples
 #' \dontrun{
 #' reference_hg19_PB = makeIndex(indexPath = '/home/A.Dent/analysis42/',
@@ -21,7 +20,7 @@
 #'
 #' align(exp = C9, ref = reference_hg19_PB, cores = 30, empericalCentre = T)
 #'
-#' findInsertions(exp = C9, ref = reference_hg19_PB, minP = 0.05)
+#' findInsertions(exp = C9, ref = reference_hg19_PB)
 #' }
 #' @return The object will be updated with a results-table:
 #' \describe{
@@ -47,38 +46,38 @@
 #' @importFrom S4Vectors queryHits subjectHits mcols
 #' @importFrom stats p.adjust
 #' @export
-findInsertions = function(exp, ref, minP = 0.05){
+findInsertions = function(exp, ref){
 
   BAMlist = list('FWD' = exp$alignedReadsFWD,
                  'REV' = exp$alignedReadsREV)
 
-  PBbed = ref$PBsites
+  TIS = ref$TIS
 
   readsGRList = list()
   cntTableList = list()
-  PBintersect = lapply(BAMlist, function(x){
+  TISintersect = lapply(BAMlist, function(x){
 
 
-    PBwithHits = IRanges::subsetByOverlaps(PBbed, x)
-    PBwithHits = PBwithHits[seqnames(PBwithHits) != exp$insertName]
+    TISwithHits = suppressWarnings(IRanges::subsetByOverlaps(TIS, x))
+    TISwithHits = TISwithHits[seqnames(TISwithHits) != exp$insertName]
 
     # make GRs
     GR5 = x[x$orientation == 5]
     GR3 = x[x$orientation == 3]
 
     # intersect with piggyback sites
-    PBbed5 = PBwithHits;PBbed5$cnt = 0
-    PBbed5$cnt = suppressWarnings(GenomicRanges::countOverlaps(PBbed5,GR5))
-    PBbed5$orientation = 5
+    TIS5 = TISwithHits;TIS5$cnt = 0
+    TIS5$cnt = suppressWarnings(GenomicRanges::countOverlaps(TIS5,GR5))
+    TIS5$orientation = 5
     # isect 3
-    PBbed3 = PBwithHits; PBbed3$cnt = 0
-    PBbed3$cnt = suppressWarnings(GenomicRanges::countOverlaps(PBbed3,GR3))
-    PBbed3$orientation = 3
+    TIS3 = TISwithHits; TIS3$cnt = 0
+    TIS3$cnt = suppressWarnings(GenomicRanges::countOverlaps(TIS3,GR3))
+    TIS3$orientation = 3
 
-    cntTable = dplyr::bind_rows(as.data.frame(PBbed3[PBbed3$cnt > 1]),
-                                as.data.frame(PBbed5[PBbed5$cnt > 1]))
+    cntTable = dplyr::bind_rows(as.data.frame(TIS3[TIS3$cnt > 1]),
+                                as.data.frame(TIS5[TIS5$cnt > 1]))
 
-    # # ! for each TTAA, get reads
+    # # ! for each TIS, get reads
     cntTable$D = 0
     cntTable$pBinom = 1
 
@@ -87,24 +86,24 @@ findInsertions = function(exp, ref, minP = 0.05){
 
     cntTableGR = GenomicRanges::makeGRangesFromDataFrame(cntTable)
 
-    hitDF = as.data.frame(GenomicRanges::findOverlaps(readsGR, cntTableGR))
+    hitDF = as.data.frame(suppressWarnings(GenomicRanges::findOverlaps(readsGR, cntTableGR)))
     hitDF = split(hitDF$queryHits, hitDF$subjectHits)
     hitDF = lapply(hitDF, function(x){as.data.frame(readsGR[x])})
 
-    cntTablelapply = lapply(1:nrow(cntTable), function(TTAAidx){
+    cntTablelapply = lapply(1:nrow(cntTable), function(TISidx){
 
-      thisTTAA = cntTableGR[TTAAidx]
+      thisTIS = cntTableGR[TISidx]
 
-      # hits = subsetByOverlaps(readsGR, thisTTAA) # <- put outside
-      HHH = hitDF[[TTAAidx]]
+      # hits = subsetByOverlaps(readsGR, thisTIS) # <- put outside
+      HHH = hitDF[[TISidx]]
 
       # ! ? add padding ? !
       PBpadding = 1
       HHH$placement = NA
-      # down is: reads start at the ttaa-start
-      HHH$placement[HHH$start >= (thisTTAA@ranges@start-PBpadding)] = 'down'
-      # up is: reads end at the ttaa-end
-      HHH$placement[HHH$end <= (thisTTAA@ranges@start+4+PBpadding) ] = 'up'
+      # down is: reads start at the TIS-start
+      HHH$placement[HHH$start >= (thisTIS@ranges@start-PBpadding)] = 'down'
+      # up is: reads end at the TIS-end
+      HHH$placement[HHH$end <= (thisTIS@ranges@start+4+PBpadding) ] = 'up'
 
       # add Y
       HHH$ID = -base::rank(rowMeans(HHH[,2:3]), ties.method = "first")
@@ -124,9 +123,9 @@ findInsertions = function(exp, ref, minP = 0.05){
 
 
       # fill cntTable
-      cntTable[TTAAidx,'D'] = Dscore
-      cntTable[TTAAidx,'pBinom'] = pBinom
-      cntTable[TTAAidx,]
+      cntTable[TISidx,'D'] = Dscore
+      cntTable[TISidx,'pBinom'] = pBinom
+      cntTable[TISidx,]
     })
 
     cntTable = dplyr::bind_rows(cntTablelapply)
@@ -139,9 +138,9 @@ findInsertions = function(exp, ref, minP = 0.05){
 
 
   FWD = GenomicRanges::makeGRangesFromDataFrame(keep.extra.columns = T,
-                                                PBintersect$FWD$cntTable)
+                                                TISintersect$FWD$cntTable)
   REV = GenomicRanges::makeGRangesFromDataFrame(keep.extra.columns = T,
-                                                PBintersect$REV$cntTable)
+                                                TISintersect$REV$cntTable)
   FO = findOverlaps(FWD, REV)
 
   FWD = as.data.frame(FWD)[S4Vectors::queryHits(FO),]
@@ -151,11 +150,11 @@ findInsertions = function(exp, ref, minP = 0.05){
   colnames(merged)[4:7]  = paste0(colnames(merged)[4:7],"_FWD")
   colnames(merged)[8:11] = paste0(colnames(merged)[8:11],"_REV")
 
-  # filter out TTAAs with the same D in FWD and REV
+  # filter out TISs with the same D in FWD and REV
   merged = merged[!(merged$D_FWD > 0 & merged$D_REV > 0),]
   merged = merged[!(merged$D_FWD < 0 & merged$D_REV < 0),]
 
-  # filter out TTAAs with a D of 0
+  # filter out TISs with a D of 0
   merged = merged[merged$D_FWD != 0 ,]
   merged = merged[merged$D_REV != 0 ,]
 
@@ -174,8 +173,8 @@ findInsertions = function(exp, ref, minP = 0.05){
 
   }
 
-  if(nrow(df[df$padj <= minP, ]) > 0){
-    df = GenomicRanges::makeGRangesFromDataFrame(df[df$padj <= minP, ], keep.extra.columns = T)
+  if(nrow(df) > 0){
+    df = GenomicRanges::makeGRangesFromDataFrame(df, keep.extra.columns = T)
     df$orientation = paste( df$orientation_FWD, df$orientation_REV,  sep = "->")
   } else {
     df = GenomicRanges::GRanges()
@@ -193,12 +192,16 @@ findInsertions = function(exp, ref, minP = 0.05){
                            orientation = character())
   }
 
-
   exp$results = df
-  tmp = exp
-  name <- sapply(match.call(expand.dots=TRUE)[-1], deparse)
-  assign(name, tmp, envir = parent.frame())
 
+  ##################################################################### assigner
+  tmp = exp
+  # get arguments
+  name <- sapply(match.call(expand.dots=TRUE)[-1], deparse)
+  #find argument postion for exp
+  AP = which(names(name) == 'exp')
+
+  assign(name[AP], tmp, envir = parent.frame())
 
   invisible(df)
 

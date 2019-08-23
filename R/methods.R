@@ -1,3 +1,6 @@
+
+
+#' @export
 print.tagMepprIndex <- function(x){
 
   cat(paste0('tagMepprIndex\n\n'))
@@ -10,7 +13,7 @@ print.tagMepprIndex <- function(x){
   cat(paste0('\tNumber of target insertion sites: ',length(x$TIS), "\n\n"))
 }
 
-
+#' @export
 print.tagMepprSample <- function(x){
 
   # name
@@ -24,6 +27,10 @@ print.tagMepprSample <- function(x){
     cat(paste0("\tAligned: FALSE\n"))
   } else {
 
+    cat(paste0('\tAlignment-folder: ', x$alignmentFolder,"\n"))
+    cat(paste0('\tInformative FWD-reads: ', length(unique(x$alignedReadsFWD$readName)),"\n"))
+    cat(paste0('\tInformative REV-reads: ', length(unique(x$alignedReadsREV$readName)),"\n"))
+
   }
 
   # if FI: num(sig sites)
@@ -31,18 +38,31 @@ print.tagMepprSample <- function(x){
     cat(paste0("\tAnalysed: FALSE\n"))
   } else {
 
+    cat(paste0('\tUnique TISs covered: ', length(GenomicRanges::reduce(x$results)),"\n"))
+    cat(paste0('\t\tp<0.05: ', length(GenomicRanges::reduce(x$results[x$results$padj < 0.05])),"\n"))
+
   }
 
   cat(paste0("\n"))
 }
 
-# results.tagMepprSample <- function(x){
-#
-#   if(is.null(x$results)){
-#     cat(paste0("\tAnalysed: FALSE\n"))
-#   } else {
-#     cat(x$results)
-#   }
-#
-#
-# }
+
+#' results.tagMepprSample <- function(x){
+#'
+#'   if(is.null(x$results)){
+#'     cat(paste0("\tAnalysed: FALSE\n"))
+#'   } else {
+#'     print(GenomicRanges::as.data.frame(x$results))
+#'   }
+#'
+#'
+#' }
+#'
+
+#' results <- function(x){
+#'   UseMethod("results", object = "tagMepprSample")
+#' }
+
+
+
+

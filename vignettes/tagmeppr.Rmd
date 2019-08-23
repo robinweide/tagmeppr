@@ -36,19 +36,23 @@ Remember: you only have to make a tagMepprIndex once per genome and protocol!
 This means that you can use it for however many samples for that protocol and 
 organism (e.g. PiggyBac in human cells) you may have.
 
-```{r makeIndex}
+```{r makeIndex, eval = F}
+library("BSgenome.Hsapiens.UCSC.hg19")
 
-
+reference_hg19_PB = makeIndex(indexPath = '.', 
+                              bsgenome = "BSgenome.Hsapiens.UCSC.hg19", 
+                              ITR = 'PiggyBac', 
+                              targetInsertionSite = 'TTAA')
 ```
 
 Loading a tagMepprIndex is easy with loadIndex().
 
-```{r loadIndex, eval=F}
+```{r loadIndex, eval=T, cache=T, cache.lazy=F}
 reference_hg19_PB = loadIndex('BSgenome.Hsapiens.UCSC.hg19_PiggyBac_tagMeppRindex.fa.gz')
 ```
 
 You can use print() on this tagMepprIndex, which gives you a lot of information: 
-```{r, eval=FALSE}
+```{r, eval=T, cache=F, cache.lazy=F}
 print(reference_hg19_PB)
 ```
 
@@ -56,26 +60,26 @@ print(reference_hg19_PB)
 
 ## Creating a new sample
 
-```{r newTagMeppr, eval=FALSE}
-C9 = newTagMeppr(F1 = 'clone9_FWD_R1.fq.gz',
-                 F2 = 'clone9_FWD_R2.fq.gz',
-                 R1 = 'clone9_REV_R1.fq.gz',
-                 R2 = 'clone9_REV_R2.fq.gz',
-                 name = "clone9",
+```{r newTagMeppr, eval=T, cache=T, cache.lazy=F}
+C91 = newTagMeppr(F1 = 'clone91_FWD_R1.fq.gz',
+                 F2 = 'clone91_FWD_R2.fq.gz',
+                 R1 = 'clone91_REV_R1.fq.gz',
+                 R2 = 'clone91_REV_R2.fq.gz',
+                 name = "clone9 (minimised)",
                  protocol = 'PiggyBac')
 ```
 
 This is the print:
-```{r, eval=FALSE}
-print(C9)
+```{r, eval=T, cache=T, cache.lazy=F}
+print(C91)
 ```
 
 # Aligning
 Omg. Mapping without leaving R! Please check if you have BWA and samtools intalled.
 Note no <- signs
 
-```{r align, eval=FALSE}
-align(exp = C9, 
+```{r align, eval=T, cache=T, cache.lazy=F, message=FALSE,results='hide'}
+align(exp = C91, 
       ref = reference_hg19_PB, 
       cores = 30, 
       empericalCentre = T)
@@ -84,15 +88,48 @@ align(exp = C9,
 
 
 The object will be updated, which keeps your evironment tidy.
-```{r, eval=FALSE}
-print(C1)
+```{r, eval=T, cache=T, cache.lazy=F}
+print(C91)
+```
+
+# Find insertions
+
+```{r FI, eval=T, cache=T, cache.lazy=F}
+findInsertions(C91, reference_hg19_PB)
+```
+
+```{r, eval=T, cache=T, cache.lazy=F}
+print(C91)
+```
+
+# Plot
+
+```{r PI, eval=T, cache=T, cache.lazy=F, fig.height= 4, fig.width=6.7}
+plotInsertions(exp = C91)
 ```
 
 
+## Plot muliple samples
+
+```{r makeList, eval=T, echo = F, cache=T, cache.lazy=F}
+C91_a = C91
+C91_b = C91
+
+C91_a$name = 'clone9 subset 1'
+C91_b$name = 'clone9 subset 2'
+
+C91_a$results = sample(C91_a$results, size = floor(length(C91_a$results)/2))
+C91_b$results = sample(C91_b$results, size = floor(length(C91_b$results)/2))
+
+tagMepprSampleList = list(C91_a, C91_b)
+```
 
 
-todo: 
-- remove non-ttaa+pad from fasta
-- empirical center auto on 1K-Npad
-- fai: make internal w/ biostring
+```{r PImult1, eval=T, cache=T, cache.lazy=F, fig.height= 4, fig.width=6.7}
+plotInsertions(tagMepprSampleList, sideBySide = F)
+```
 
+
+```{r PImult2, eval=T, cache=T, cache.lazy=F, fig.height= 4, fig.width=6.7}
+plotInsertions(tagMepprSampleList, sideBySide = T)
+```

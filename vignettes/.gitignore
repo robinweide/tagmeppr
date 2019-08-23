@@ -2,3 +2,5 @@
 *.R
 BS*
 clone*
+tagmeppr_cache
+KEEP*

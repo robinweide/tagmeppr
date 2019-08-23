@@ -4,14 +4,12 @@
 \alias{findInsertions}
 \title{findInsertions}
 \usage{
-findInsertions(exp, ref, minP = 0.05)
+findInsertions(exp, ref)
 }
 \arguments{
 \item{exp}{The tagMeppr-object of a sample: first run \code{\link{align}}.}
 
 \item{ref}{A reference object of \code{\link{makeIndex}} or \code{\link{loadIndex}}.}
-
-\item{minP}{The minimal adjusted p-value.}
 }
 \value{
 The object will be updated with a results-table:
@@ -49,7 +47,7 @@ C9 = newTagMeppr(F1 = 'clone9_FWD_R1.fq.gz',
 
 align(exp = C9, ref = reference_hg19_PB, cores = 30, empericalCentre = T)
 
-findInsertions(exp = C9, ref = reference_hg19_PB, minP = 0.05)
+findInsertions(exp = C9, ref = reference_hg19_PB)
 }
 }
 \author{

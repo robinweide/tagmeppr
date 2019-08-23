@@ -8,6 +8,7 @@
 #' @param chrom Which chromosomes should be plotted (even when no insertions are found).
 #' @param colours Choose colours for individual tagMeppr-objects (if sideBySide = T).
 #' @param sideBySide If true, will show per-object ideogram. If false, will show
+#' @param p Set a p-value treshold
 #' all (colour-coded) objects inside one ideogram.
 #' @examples
 #' \dontrun{
@@ -24,7 +25,7 @@
 #'
 #' align(exp = C9, ref = reference_hg19_PB, cores = 30, empericalCentre = T)
 #'
-#' findInsertions(exp = C9, ref = reference_hg19_PB, minP = 0.05)
+#' findInsertions(exp = C9, ref = reference_hg19_PB)
 #'
 #' plotInsertions(exp = C9, chrom = c('chr1','chr2'))
 #'
@@ -37,15 +38,15 @@
 #' @importFrom ggrepel geom_text_repel
 #' @importFrom ggplot2 ggplot aes_string coord_cartesian element_blank element_text facet_grid geom_segment labs scale_color_manual scale_x_continuous theme theme_minimal xlab ylab
 #' @export
-plotInsertions = function(exp, chrom = paste0('chr', c(1:25,'X')), colours = NULL, sideBySide = F){
+plotInsertions = function(exp, chrom = paste0('chr', c(1:25,'X')), colours = NULL, sideBySide = F, p = 0.05){
 
   toPlot = NULL
-  fai = NULL
+  SI = NULL
   # check if exp is a list of exps or a simpe one
   if( 'results' %in%  names(exp) ){
     # this one exp!
     toPlot = exp$results
-    fai    = exp$fai
+    SI    = exp$seqinfo
 
     if(length(exp) == 0){
       toPlot = GenomicRanges::GRanges()
@@ -56,7 +57,7 @@ plotInsertions = function(exp, chrom = paste0('chr', c(1:25,'X')), colours = NUL
 
   } else {
     #these are multiple exp.
-    fai = exp[[1]]$fai
+    SI = exp[[1]]$seqinfo
 
     # check that all have done findInsertions!
     YN = sapply(exp, function(x){'results' %in%  names(x)})
@@ -80,9 +81,21 @@ plotInsertions = function(exp, chrom = paste0('chr', c(1:25,'X')), colours = NUL
     toPlot = unlist(GenomicRanges::GRangesList(toPlot[!sapply(toPlot, is.null)]))
   }
 
+  toPlot = toPlot[toPlot$padj < p,]
+
+  SI = GenomeInfoDb::as.data.frame(SI)
+  SI$chrom = rownames(SI); rownames(SI) = NULL
+  SI = SI[,c(4,1)]
+  SI = stats::setNames(SI, c('chrom','chromEnd'))
+  SI$chromStart = 1
+  SI = SI[SI$chrom %in% chrom, ]
+  SI = SI[stats::complete.cases(SI),]
+  SI$chrom = factor(SI$chrom, levels = chrom)
+
+
   # make the ideogram
   gg = ggplot2::ggplot() +
-       ggplot2::geom_segment( data = fai,
+       ggplot2::geom_segment( data = SI,
                               mapping = ggplot2::aes_string(x = 'chromStart',
                                                             xend = 'chromEnd'),
                               y = 0,
@@ -92,26 +105,25 @@ plotInsertions = function(exp, chrom = paste0('chr', c(1:25,'X')), colours = NUL
                               size = 5 )
 
   if(length(toPlot) > 0){
-    fai = stats::setNames(fai[,1:2], c('chrom', 'chromEnd'))
-    fai$chromStart = 0
-    fai = fai[,c(1,3,2)]
-    fai$chrom = factor(fai$chrom, levels = chrom)
+
+
+    names(toPlot) = NULL
+    toPlot = as.data.frame(toPlot)[,c('seqnames','start','end','name','orientation')]
+    toPlot = toPlot[stats::complete.cases(toPlot),]
+    toPlot = stats::setNames(toPlot,
+                             nm = c('chrom',"chromStart", 'chromEnd','C','O'))
 
     # filter out chroms that are not wanted
     if(!is.null(chrom)){
 
-      fai = fai[fai[,1] %in% chrom,]
-      toPlot = toPlot[seqnames(toPlot) %in% chrom]
+      toPlot = toPlot[toPlot$chrom %in% chrom, ]
 
     }
 
-    names(toPlot) = NULL
 
-    toPlot = as.data.frame(toPlot)[,c('seqnames','start','end','name','orientation')]
-    toPlot = stats::setNames(toPlot,
-                             nm = c('chrom',"chromStart", 'chromEnd','C','O'))
 
     if(sideBySide){
+      toPlot$chrom = factor(toPlot$chrom, levels = chrom)
       gg = gg +
         ggplot2::facet_grid( chrom ~ C, switch = "y" ) +
         ggplot2::geom_segment( data = toPlot,
@@ -165,19 +177,20 @@ plotInsertions = function(exp, chrom = paste0('chr', c(1:25,'X')), colours = NUL
                                y = -5,
                                yend = 5) +
         ggplot2::scale_color_manual(values = colours) +
-        ggrepel::geom_text_repel(data = toPlot,
-                                 y = 0,
-                                 mapping = ggplot2::aes_string(x = 'chromEnd',
-                                                               label = 'Freq'))+
+        # ggrepel::geom_text_repel(data = toPlot,
+        #                          y = 0,
+        #                          mapping = ggplot2::aes_string(x = 'chromEnd',
+        #                                                        label = 'Freq'))+
         ggplot2::labs(col = '')
     }
   }
 
 
-  gg + ggplot2::theme_minimal() +
-       ggplot2::scale_x_continuous( breaks = seq( 0, 2.5e8, 50e6 ),
+  gg = gg + ggplot2::theme_minimal() +
+       ggplot2::scale_x_continuous( expand = ggplot2::expand_scale(mult = c(0,0.1)),
+                                    breaks = seq( 0, 2.5e8, 50e6 ),
                                     labels = c( 1, seq( 50, 250, 50  ) ) ) +
-       ggplot2::coord_cartesian(ylim = c(-5,5))+
+       ggplot2::coord_cartesian(ylim = c(-5,5),)+
        ggplot2::ylab( "" ) +
        ggplot2::xlab( "Genomic positions (Mb)" ) +
        ggplot2::theme(

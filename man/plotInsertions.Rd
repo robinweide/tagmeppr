@@ -5,7 +5,7 @@
 \title{plotInsertions}
 \usage{
 plotInsertions(exp, chrom = paste0("chr", c(1:25, "X")),
-  colours = NULL, sideBySide = F)
+  colours = NULL, sideBySide = F, p = 0.05)
 }
 \arguments{
 \item{exp}{A list or singular instance of tagMeppr-object(s):
@@ -15,7 +15,9 @@ first run \code{\link{findInsertions}}.}
 
 \item{colours}{Choose colours for individual tagMeppr-objects (if sideBySide = T).}
 
-\item{sideBySide}{If true, will show per-object ideogram. If false, will show
+\item{sideBySide}{If true, will show per-object ideogram. If false, will show}
+
+\item{p}{Set a p-value treshold
 all (colour-coded) objects inside one ideogram.}
 }
 \value{
@@ -39,7 +41,7 @@ C9 = newTagMeppr(F1 = 'clone9_FWD_R1.fq.gz',
 
 align(exp = C9, ref = reference_hg19_PB, cores = 30, empericalCentre = T)
 
-findInsertions(exp = C9, ref = reference_hg19_PB, minP = 0.05)
+findInsertions(exp = C9, ref = reference_hg19_PB)
 
 plotInsertions(exp = C9, chrom = c('chr1','chr2'))
 

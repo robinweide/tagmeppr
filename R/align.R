@@ -200,25 +200,16 @@ align = function(exp, ref, cores = 20, empericalCentre = F, verbose = F){
 
   # post align  ------------------------------------
   if(verbose){message('Running postAlign')}
-  postAlign(exp, ref, empericalCentre = empericalCentre)
-
-  tmp = exp
-  name <- sapply(match.call(expand.dots=TRUE)[-1], deparse)
-  assign(name, tmp, envir = parent.frame())
-}
-
-postAlign = function(exp, ref, empericalCentre = F){
-
   FWDBAM <- GenomicAlignments::readGAlignments(paste0(exp$alignmentFolder,"/FWD.bam"),
                                                param=Rsamtools::ScanBamParam(tag=c("SA",
-                                                                        "XA")),
+                                                                                   "XA")),
                                                use.names = T)
   cassInfo = FWDBAM@seqinfo[exp$insertName]
   S4Vectors::mcols(FWDBAM)$readName = names(FWDBAM); names(FWDBAM) = NULL
 
   REVBAM <- GenomicAlignments::readGAlignments(paste0(exp$alignmentFolder,"/REV.bam"),
                                                param=Rsamtools::ScanBamParam(tag=c("SA",
-                                                                        "XA")),
+                                                                                   "XA")),
                                                use.names = T)
   cassInfo = REVBAM@seqinfo[exp$insertName]
   S4Vectors::mcols(REVBAM)$readName = names(REVBAM); names(REVBAM) = NULL
@@ -246,6 +237,11 @@ postAlign = function(exp, ref, empericalCentre = F){
     stop('empericalCentre must be T, F or numeric!')
   }
 
+# catch for EC == NA
+  if(is.na(cassMid)){
+    cassMid = GenomeInfoDb::as.data.frame(ref$seqinfo[ref$insertName])[,1]/2
+  }
+
 
   SAlist  = lapply(BAMlist, function(x){
 
@@ -259,9 +255,9 @@ postAlign = function(exp, ref, empericalCentre = F){
     alignmentsSA = NULL
     if(nrow(tmpSA) > 0){
       alignmentsSA <- GenomicAlignments::GAlignments(seqnames = tmpSA$S,
-                                  pos = as.integer(tmpSA$P),
-                                  cigar = tmpSA$C,
-                                  strand = BiocGenerics::strand(tmpSA$St))
+                                                     pos = as.integer(tmpSA$P),
+                                                     cigar = tmpSA$C,
+                                                     strand = BiocGenerics::strand(tmpSA$St))
       S4Vectors::mcols(alignmentsSA)$readName = tmpSA$readName
       alignmentsSA = as.data.frame(alignmentsSA)
     } else {
@@ -285,9 +281,9 @@ postAlign = function(exp, ref, empericalCentre = F){
     alignmentsXA = NULL
     if(nrow(tmpXA) > 0){
       alignmentsXA <- GenomicAlignments::GAlignments(seqnames = tmpXA$S,
-                                  pos = as.integer(tmpXA$P),
-                                  cigar = tmpXA$C,
-                                  strand = BiocGenerics::strand(tmpXA$St))
+                                                     pos = as.integer(tmpXA$P),
+                                                     cigar = tmpXA$C,
+                                                     strand = BiocGenerics::strand(tmpXA$St))
       S4Vectors::mcols(alignmentsXA)$readName = tmpXA$readName
       alignmentsXA = as.data.frame(alignmentsXA)
     } else {
@@ -327,7 +323,15 @@ postAlign = function(exp, ref, empericalCentre = F){
                                                                  keep.extra.columns = T)
   exp$insertionMid = cassMid
 
+  ##################################################################### assigner
   tmp = exp
+  # get arguments
   name <- sapply(match.call(expand.dots=TRUE)[-1], deparse)
-  assign(name, tmp, envir = parent.frame())
+  #find argument postion for exp
+  AP = which(names(name) == 'exp')
+
+  assign(name[AP], tmp, envir = parent.frame())
+
+  invisible(tmp)
+
 }
