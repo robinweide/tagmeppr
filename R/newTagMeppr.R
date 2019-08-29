@@ -29,6 +29,7 @@
 #' \item{R2}{The path of reverse_R2.fastq.gz.}
 #' \item{name}{The name of the sample.}
 #' \item{protocol}{The name of the protocol.}
+#' \item{rev5_fwd3}{Flag for checkPrimer().}
 #'}
 #'
 #' @export
@@ -72,7 +73,8 @@ newTagMeppr <- function(F1, F2, R1, R2, name, protocol = 'PiggyBac'){
                          R1 = R1,
                          R2 = R2,
                          name = name,
-                         protocol = protocol),
+                         protocol = protocol,
+                         rev5_fwd3 = NA),
                     class = c("tagMepprSample", "list"))
 
   return(TMobj)

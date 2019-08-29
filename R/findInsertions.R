@@ -5,6 +5,9 @@
 #' @author Robin H. van der Weide, \email{r.vd.weide@nki.nl}
 #' @param exp The tagMeppr-object of a sample: first run \code{\link{align}}.
 #' @param ref A reference object of \code{\link{makeIndex}} or \code{\link{loadIndex}}.
+#' @param padding Add padding to the start/end of reads in relation to the TIS.
+#' Default is half of the TIS (i.e. 2bp whit Piggybac), meaning that the mapper
+#' can report a match Xbp further than the TIS (i.e. TTAA).
 #' @examples
 #' \dontrun{
 #' reference_hg19_PB = makeIndex(indexPath = '/home/A.Dent/analysis42/',
@@ -24,32 +27,40 @@
 #' }
 #' @return The object will be updated with a results-table:
 #' \describe{
-#' \item{cnt_FWD}{Forward read-counts at this insertion-site}
-#' \item{orientation_FWD}{Forward read-orientation at the insertion}
+#' \item{fwdCount}{Forward read-counts at this insertion-site}
+#' \item{fwdOrient}{Forward read-orientation at the insertion}
 #' \item{D_FWD}{The imbalance of forward reads on both sides of the
 #' site: D = 0 means no imbalance}
-#' \item{pBinom_FWD}{The probability of the imbalance}
-#' \item{cnt_REV}{Reverse read-counts at this insertion-site}
-#' \item{orientation_REV}{Reverse read-orientation at the insertion}
+#' \item{fwdBinom}{The probability of the imbalance}
+#' \item{revCount}{Reverse read-counts at this insertion-site}
+#' \item{revOrient}{Reverse read-orientation at the insertion}
 #' \item{D_REV}{The imbalance of forward reads on both sides of the site: D = 0
 #' means no imbalance}
-#' \item{pBinom_REV}{The probability of the imbalance}
+#' \item{revBinom}{The probability of the imbalance}
 #' \item{pMarkerMeppR}{The combined probability of the imbalances}
 #' \item{padj}{Bonferroni-adjusted probabilties}
 #' \item{orientation}{The orientation of the insertion}
 #' }
 #'
 #' @importFrom dplyr bind_rows
-#' @importFrom GenomicRanges countOverlaps makeGRangesFromDataFrame findOverlaps GRanges
+#' @importFrom GenomicRanges countOverlaps makeGRangesFromDataFrame findOverlaps GRanges strand
 #' @importFrom IRanges subsetByOverlaps
 #' @importFrom metap sump
 #' @importFrom S4Vectors queryHits subjectHits mcols
 #' @importFrom stats p.adjust
 #' @export
-findInsertions = function(exp, ref){
+findInsertions = function(exp, ref, padding = NULL){
+
+  if(is.null(padding)){
+    padding = IRanges::width(ref$TIS[1])/2
+  }; if(is.na(padding)){padding = 2}
 
   BAMlist = list('FWD' = exp$alignedReadsFWD,
                  'REV' = exp$alignedReadsREV)
+
+  if(is.null(BAMlist$FWD)){
+    stop('No reads found. Did you run align()?')
+  }
 
   TIS = ref$TIS
 
@@ -62,27 +73,26 @@ findInsertions = function(exp, ref){
     TISwithHits = TISwithHits[seqnames(TISwithHits) != exp$insertName]
 
     # make GRs
-    GR5 = x[x$orientation == 5]
-    GR3 = x[x$orientation == 3]
+    GRT = x[x$beforePad == T]
+    GRF = x[x$beforePad == F]
 
     # intersect with piggyback sites
-    TIS5 = TISwithHits;TIS5$cnt = 0
-    TIS5$cnt = suppressWarnings(GenomicRanges::countOverlaps(TIS5,GR5))
-    TIS5$orientation = 5
+    TIST = TISwithHits;TIST$cnt = 0
+    TIST$cnt = suppressWarnings(GenomicRanges::countOverlaps(TIST,GRT))
+    TIST$beforePad = T
     # isect 3
-    TIS3 = TISwithHits; TIS3$cnt = 0
-    TIS3$cnt = suppressWarnings(GenomicRanges::countOverlaps(TIS3,GR3))
-    TIS3$orientation = 3
+    TISF = TISwithHits; TISF$cnt = 0
+    TISF$cnt = suppressWarnings(GenomicRanges::countOverlaps(TISF,GRF))
+    TISF$beforePad = F
 
-    cntTable = dplyr::bind_rows(as.data.frame(TIS3[TIS3$cnt > 1]),
-                                as.data.frame(TIS5[TIS5$cnt > 1]))
+    cntTable = dplyr::bind_rows(as.data.frame(TISF[TISF$cnt > 1]),
+                                as.data.frame(TIST[TIST$cnt > 1]))
 
     # # ! for each TIS, get reads
     cntTable$D = 0
     cntTable$pBinom = 1
 
     readsGR = x
-    S4Vectors::mcols(readsGR)[1:4] = NULL
 
     cntTableGR = GenomicRanges::makeGRangesFromDataFrame(cntTable)
 
@@ -97,13 +107,12 @@ findInsertions = function(exp, ref){
       # hits = subsetByOverlaps(readsGR, thisTIS) # <- put outside
       HHH = hitDF[[TISidx]]
 
-      # ! ? add padding ? !
-      PBpadding = 1
       HHH$placement = NA
+
       # down is: reads start at the TIS-start
-      HHH$placement[HHH$start >= (thisTIS@ranges@start-PBpadding)] = 'down'
+      HHH$placement[HHH$start >= (thisTIS@ranges@start-padding)] = 'down'
       # up is: reads end at the TIS-end
-      HHH$placement[HHH$end <= (thisTIS@ranges@start+4+PBpadding) ] = 'up'
+      HHH$placement[HHH$end <= (thisTIS@ranges@start+4+padding) ] = 'up'
 
       # add Y
       HHH$ID = -base::rank(rowMeans(HHH[,2:3]), ties.method = "first")
@@ -141,55 +150,90 @@ findInsertions = function(exp, ref){
                                                 TISintersect$FWD$cntTable)
   REV = GenomicRanges::makeGRangesFromDataFrame(keep.extra.columns = T,
                                                 TISintersect$REV$cntTable)
-  FO = findOverlaps(FWD, REV)
+  FO = GenomicRanges::findOverlaps(FWD, REV)
 
   FWD = as.data.frame(FWD)[S4Vectors::queryHits(FO),]
   REV = as.data.frame(REV)[S4Vectors::subjectHits(FO),]
 
   merged = cbind(FWD[,-c(4:7)],REV[,-c(1:7)])
-  colnames(merged)[4:7]  = paste0(colnames(merged)[4:7],"_FWD")
-  colnames(merged)[8:11] = paste0(colnames(merged)[8:11],"_REV")
+  colnames(merged)[4:7]  = paste0('fwd',colnames(merged)[4:7])
+  colnames(merged)[8:11] = paste0('rev',colnames(merged)[8:11])
 
   # filter out TISs with the same D in FWD and REV
-  merged = merged[!(merged$D_FWD > 0 & merged$D_REV > 0),]
-  merged = merged[!(merged$D_FWD < 0 & merged$D_REV < 0),]
+  merged = merged[!(merged$fwdD > 0 & merged$revD > 0),]
+  merged = merged[!(merged$fwdD < 0 & merged$revD < 0),]
 
   # filter out TISs with a D of 0
-  merged = merged[merged$D_FWD != 0 ,]
-  merged = merged[merged$D_REV != 0 ,]
+  merged = merged[merged$fwdD != 0 ,]
+  merged = merged[merged$revD != 0 ,]
 
-  merged = merged[merged$orientation_FWD != merged$orientation_REV,]
+  merged = merged[merged$fwdbeforePad != merged$revbeforePad,]
   df = merged
-
+  rownames(df) = NULL
   if(nrow(merged) > 0){
 
-    df[df$pBinom_FWD == 0, "pBinom_FWD"] = min(df[df$pBinom_FWD > 0, "pBinom_FWD"])
-    df[df$pBinom_REV == 0, "pBinom_REV"] = min(df[df$pBinom_REV > 0, "pBinom_REV"])
+    df[df$fwdpBinom == 0, "fwdpBinom"] = min(c(2.2e-16,df[df$fwdpBinom > 0, "fwdpBinom"]))
+    df[df$revpBinom == 0, "revpBinom"] = min(c(2.2e-16,df[df$revpBinom > 0, "revpBinom"]))
+
+    df$fwdpBinom[df$fwdpBinom == Inf] = 2.2e-16
+    df$revpBinom[df$revpBinom == Inf] = 2.2e-16
 
     #  do sumlog
-    df$pMarkerMeppR = apply(df[,c(7,11)], 1, function(x){y = metap::sump(x)$p})
-    df$padj = stats::p.adjust(df$pMarkerMeppR)
+    df$pval = apply(df[,c(7,11)], 1, function(x){y = metap::sump(x)$p})
+    df$padj = stats::p.adjust(df$pval)
 
 
   }
 
   if(nrow(df) > 0){
     df = GenomicRanges::makeGRangesFromDataFrame(df, keep.extra.columns = T)
-    df$orientation = paste( df$orientation_FWD, df$orientation_REV,  sep = "->")
+
+    # __R|F__ = +
+    ORIENTATION = ifelse(df$revD < 0 & df$fwdD > 0,
+                          'RF',
+                          'FR')
+    # __F|R__ = -
+    ORIENTATIONcheck = ifelse(df$fwdD < 0 & df$revD > 0,
+                          'FR',
+                          'RF')
+
+    # catch both
+    ORIENTATION[ORIENTATION != ORIENTATIONcheck] = NA
+
+    # switch
+    if(is.na(exp$rev5_fwd3)){
+      warning('checkPrimer not used.
+              Will not try to flip orientation.')
+    } else if(!exp$rev5_fwd3){
+      ORIENTATION = ifelse(ORIENTATION == 'RF', 'FR','RF')
+      }
+
+    GenomicRanges::strand(df) =  ifelse(ORIENTATION == 'RF', "+", "-")
+
+    colnames(S4Vectors::mcols( df)) = c('fwdCount',
+                                        'fwdOrient',
+                                        'fwdD',
+                                        'fwdBinom',
+                                        'revCount',
+                                        'revOrient',
+                                        'revD',
+                                        'revBinom',
+                                        'pval',
+                                        'padj')
   } else {
     df = GenomicRanges::GRanges()
 
-    S4Vectors::mcols(df) = data.frame(cnt_FWD = integer(),
-                           orientation_FWD = numeric(),
-                           D_FWD = numeric(),
-                           pBinom_FWD = numeric(),
-                           cnt_REV = integer(),
-                           orientation_REV = numeric(),
-                           D_REV = numeric(),
-                           pBinom_REV = numeric(),
-                           pMarkerMeppR = numeric(),
-                           padj = numeric(),
-                           orientation = character())
+    S4Vectors::mcols(df) = data.frame(
+                           fwdCount = integer(),
+                           fwdOrient = numeric(),
+                           fwdD = numeric(),
+                           fwdBinom = numeric(),
+                           revCount = integer(),
+                           revOrient = numeric(),
+                           revD = numeric(),
+                           revBinom = numeric(),
+                           pval = numeric(),
+                           padj = numeric())
   }
 
   exp$results = df

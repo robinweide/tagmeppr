@@ -1,5 +1,6 @@
-
-
+#' @return \code{NULL}
+#'
+#' @title print
 #' @export
 print.tagMepprIndex <- function(x){
 
@@ -13,7 +14,11 @@ print.tagMepprIndex <- function(x){
   cat(paste0('\tNumber of target insertion sites: ',length(x$TIS), "\n\n"))
 }
 
+#' @return \code{NULL}
+#'
+#' @title print
 #' @export
+#' @importFrom GenomicRanges reduce
 print.tagMepprSample <- function(x){
 
   # name
@@ -21,6 +26,14 @@ print.tagMepprSample <- function(x){
   cat(paste0('tagMepprSample\n\n'))
   cat(paste0('\tName: ', x$name,"\n"))
   cat(paste0('\tProtocol: ', x$protocol,"\n"))
+
+  if(is.na(x$rev5_fwd3)){
+    cat(paste0('\tPrimer checked: no (highly recommended!!!)\n'))
+  } else if(x$rev5_fwd3){
+    cat(paste0('\tPrimer checked: yes\n'))
+  } else {
+    cat(paste0('\tPrimer checked: yes (flipped)\n'))
+  }
 
   # if aligned: num(aligned), num(informative)
   if(is.null(x$alignedReadsFWD)){
@@ -46,22 +59,59 @@ print.tagMepprSample <- function(x){
   cat(paste0("\n"))
 }
 
+#' Obtain the results
+#'
+#' Running this will generate a data.frame of results
+#'
+#' @title results
+#' @param tagMepprSample Your sample
+#' @param alpha A p-value treshold (default: 1)
+#' @param countThreshold A p-value treshold (default: 0)
+#' @param orientation Select insertions with a specific orientation
+#' @param ... other arguments
+#' @examples
+#'
+#' results(tagMepprSample, alpha = 0.05, countThreshold = 100)
+#'
+#' @export
+results <- function(tagMepprSample, alpha = 1, countThreshold = 0) UseMethod("results")
 
-#' results.tagMepprSample <- function(x){
-#'
-#'   if(is.null(x$results)){
-#'     cat(paste0("\tAnalysed: FALSE\n"))
-#'   } else {
-#'     print(GenomicRanges::as.data.frame(x$results))
-#'   }
-#'
-#'
-#' }
-#'
 
-#' results <- function(x){
-#'   UseMethod("results", object = "tagMepprSample")
-#' }
+#' @export
+#' @importFrom GenomicRanges as.data.frame
+results.tagMepprSample <- function(tagMepprSample, alpha = 1, countThreshold = 0, orientation = "*"){
+  x = NULL
+  if(is.null(tagMepprSample$results)){
+    cat(paste0("\tFirst run findInsertions() \n"))
+  } else {
+    x = GenomicRanges::as.data.frame(tagMepprSample$results)
+
+    if(orientation %in% c("-", "+")){
+      x = x[x$strand == orientation,]
+    }
+
+    x = x[x$padj < alpha &
+            x$fwdCount > countThreshold &
+            x$revCount > countThreshold,]
+    x$width = NULL
+    x$fwdD = round(x$fwdD,digits = 2)
+    x$revD = round(x$revD,digits = 2)
+
+    x$pval[x$pval < 2e-16] = 2e-16
+    x$padj[x$padj < 2e-16] = 2e-16
+    rownames(x) = NULL
+    x = x[,-c(6,8,10,12,13)][,c(1:5,7,6,8,9)]
+  }
+  return(x)
+}
+
+
+
+
+
+
+
+
 
 
 

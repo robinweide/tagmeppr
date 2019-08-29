@@ -37,6 +37,7 @@ The function also returns a tagMepprIndex-object with the following slots:
 \item{targetInsertionSite}{The targetInsertionSite}
 \item{insertName}{The name of the transposon in the hybrid reference}
 \item{seqinfo}{A seqinfo object of all chromosomes in index.}
+\item{NpadRange}{The positions of the N-padding in the ITR-sequence.}
 }
 }
 \description{

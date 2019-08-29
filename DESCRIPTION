@@ -1,11 +1,11 @@
 Package: tagMeppr
 Type: Package
-Title: A computational pipeline to map tagmap-insertions.
+Title: A computational pipeline to map tagmap-insertions
 Version: 0.1.0
 Authors@R: person("Robin H.", "van der Weide", email = "r.vd.weide@nki.nl", role = c("aut", "cre"), comment = c(ORCID = "0000-0002-6466-7280s"))
 Author: Robin H. van der Weide [aut, cre]
 Maintainer: Robin H. van der Weide <r.vd.weide@nki.nl>
-Description: Align, interrogate and visualise your tagmap sequencing data, without leaving R.
+Description: Align, interrogate and visualise your tagmap sequencing data, without leaving R
 License: MIT + file LICENSE
 Depends: R (>= 3.4.0)
 URL: https://github.com/robinweide/tagmeppr

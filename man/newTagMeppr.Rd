@@ -30,6 +30,7 @@ A tagMepprSample-object with the following slots:
 \item{R2}{The path of reverse_R2.fastq.gz.}
 \item{name}{The name of the sample.}
 \item{protocol}{The name of the protocol.}
+\item{rev5_fwd3}{Flag for checkPrimer().}
 }
 }
 \description{

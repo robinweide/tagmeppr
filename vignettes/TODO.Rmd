@@ -1,0 +1,21 @@
+---
+title: To-Do
+---
+
+## Urgent-Important:
+* Write readme
+* Write vignette
+
+## Not Urgent - Important:
+* write compareSamples
+* test with different read lengths
+
+## Urgent - Not Important:
+* speed up postalign part
+* speed up findInsertions
+
+## Not Urgent - Not Important:
+* make in-silico insertions to test everything
+* allow xlims on plots
+* write up run5431
+* write up ruben

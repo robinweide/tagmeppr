@@ -20,6 +20,7 @@ A tagMepprIndex-object with the following slots:
 \item{targetInsertionSite}{The targetInsertionSite}
 \item{insertName}{The name of the transposon in the hybrid reference}
 \item{seqinfo}{A seqinfo object of all chromosomes in index.}
+\item{NpadRange}{The positions of the N-padding in the ITR-sequence.}
 }
 }
 \description{
@@ -28,7 +29,7 @@ Load a hybrid reference genome
 \examples{
 \dontrun{
 reference_hg19_PB = makeIndex(indexPath = '/home/A.Dent/analysis42/',
-                              bsgenome = 'BSgenome.Hsapiens.UCSC.hg19',
+                              bsgenome = BSgenome.Hsapiens.UCSC.hg19,
                               ITR = 'PiggyBac')
 
 # stuff happens and reference_T42 is no longer loaded, so lets load it:
