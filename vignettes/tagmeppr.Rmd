@@ -28,15 +28,12 @@ knitr::include_graphics("logo_tagMeppr.pdf")
 
 Hi there! Welcome! 
 
-<<<<<<< HEAD
 TagMap is a very useful method for transposon mapping [@Stern037762], enabling 
 researchers to map the insertion sites with ease and generate long sequencing 
 reads. However, there is little to none automatisation and downstream analysis 
 software available for these reads. TagMeppr is an easy to use, memory 
 efficient fastq-to-figure package written in R.
 
-=======
->>>>>>> 8b743965d7fb5086aa108d88d4cd427d2e656dd8
 ```{r lib, eval = T}
 library(tagMeppr)
 ```

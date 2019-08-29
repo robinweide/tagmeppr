@@ -19,7 +19,4 @@ title: To-Do
 * allow xlims on plots
 * write up run5431
 * write up ruben
-<<<<<<< HEAD
 * both plotters  should feel te some: same ticks/colours etc
-=======
->>>>>>> 8b743965d7fb5086aa108d88d4cd427d2e656dd8
