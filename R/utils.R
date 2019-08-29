@@ -1,3 +1,16 @@
+#' tagMepprCol
+#'
+#' A pallette based on CYRUP (github.com/robinweide/CYRUP)
+#'
+#' @author Robin H. van der Weide, \email{r.vd.weide@nki.nl}
+#' @param n The number of colours needed.
+#' @export
+tagMepprCol = function(n){
+  pal = c("#009bef", "#ff5c49", "#949494", "#fed500")
+  return(pal[n])
+}
+
+
 #' runIDgen
 #'
 #' Generate an unique 10-item ID

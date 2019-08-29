@@ -58,7 +58,9 @@ plotSite = function(exp, site = 1, forceDetail = F, maxReads = Inf){
   FOfwd = GenomicRanges::findOverlaps(readsGRList[[1]],  exp$results)
   FOrev = GenomicRanges::findOverlaps(readsGRList[[2]],  exp$results)
 
-
+  ##############################################################################
+  ################################################################ extract reads
+  ##############################################################################
   # get TTAA
   thisPB = as.data.frame( exp$results[site])
   # get reads overlapping FWD
@@ -68,6 +70,9 @@ plotSite = function(exp, site = 1, forceDetail = F, maxReads = Inf){
   REVreads = as.data.frame(readsGRList[[2]][unique(S4Vectors::queryHits(FOrev[S4Vectors::subjectHits(FOrev) == site]))])
   REVreads$primer = 'reverse'
 
+  ##############################################################################
+  ################################################################# reduce reads
+  ##############################################################################
   if(nrow(FWDreads) > maxReads){
     FWDreads = FWDreads[sample(1:nrow(FWDreads), size = maxReads),]
   }
@@ -76,12 +81,31 @@ plotSite = function(exp, site = 1, forceDetail = F, maxReads = Inf){
     REVreads = REVreads[sample(1:nrow(REVreads), size = maxReads),]
   }
 
+  ##############################################################################
+  ################################################################ combine reads
+  ##############################################################################
+
   reads = rbind(REVreads, FWDreads)
-  reads$Y = base::rank(reads$start + (reads$width/2), ties.method = "first")
+  # see wich is down
+  bottom = names(which.min(sapply(split(reads, reads$primer), function(x){min(x$start)})))
+
+  # sort rev
+  REVreads$Y = base::rank(REVreads$start + (REVreads$width/2), ties.method = "first")
+  # sort fwd
+  FWDreads$Y = base::rank(FWDreads$start + (FWDreads$width/2), ties.method = "first")
+  # top's Y should have nrow(down) added to it
+  if(bottom == 'forward'){
+    REVreads$Y  = REVreads$Y + nrow(FWDreads)
+  } else if(bottom == 'reverse'){
+    FWDreads$Y = FWDreads$Y + nrow(REVreads)
+  }
+  reads = rbind(REVreads, FWDreads)
+  # reads$Y = base::rank(reads$start + (reads$width/2), ties.method = "first")
   reads = reads[reads$Y,]
 
   gg = NULL
   YT = getYticks(reads, thisPB)
+  tmp = NULL
   if(nrow(reads) < 1000 | forceDetail){
 
       gg = ggplot2::ggplot(reads,
@@ -137,37 +161,36 @@ plotSite = function(exp, site = 1, forceDetail = F, maxReads = Inf){
 
     gg = ggplot2::ggplot(tmp, mapping = ggplot2::aes_string(x = "pos",
                                                      y = "y",
-                                                     fill = "primer",
-                                                     label = "LBL")) +
+                                                     fill = "primer")) +
       ggplot2::geom_polygon()
 
     }
 
-  gg = gg +
+  gg =gg +
     ggplot2::geom_hline(yintercept = YT[[3]])+
     ggplot2::scale_fill_manual(na.value ="#949494",
-                      values = stats::setNames(c("#009bef","#ff5c49"),
-                                        c('forward','reverse'))) +
+                               values = stats::setNames(c("#009bef","#ff5c49"),
+                                                        c('forward','reverse'))) +
     ggplot2::scale_y_continuous(breaks = YT[[2]], labels = YT[[1]],
-                       expand = ggplot2::expand_scale(add = c(5,5)))+
-    ggplot2::scale_x_continuous(breaks = unique(floor(tmp$pos / 1e2))*1e2,
-                       expand = c(0,0),
-                       limits = c(thisPB$start - flank, thisPB$end + flank)) +
+                                expand = ggplot2::expand_scale(add = c(5,5)))+
+    ggplot2::scale_x_continuous(breaks = unique(floor(seq(thisPB$start - flank, thisPB$end + flank)/1e2))*1e2,
+                                expand = c(0,0),
+                                limits = c(thisPB$start - flank, thisPB$end + flank)) +
     ggplot2::geom_vline(xintercept = thisPB$start)+
     ggplot2::geom_vline(xintercept = thisPB$end)+
     ggplot2::labs(x = as.character(thisPB$seqnames),
-         y = 'count')+
+                  y = 'count')+
     ggplot2::theme(legend.title = ggplot2::element_blank()) +
-    ggplot2::annotate('text', x = (thisPB$end + (flank * 0.975 )),
-                      y = 0, hjust = 1, vjust = 0, cex = 3,
-             label =   paste0( "Dfwd = " ,round(thisPB$D_FWD, digits = 2),
-                               "\nDrev = " ,round(thisPB$D_REV, digits = 2),
-                               "\np = ",format.pval(thisPB$padj, digits = 3),
-                               '\nIntegration = ',thisPB$casetteStrand )) +
+    ggplot2::annotate('text', x = thisPB$start - (flank * 0.975 ),
+                      y = max(YT[[2]]), hjust = 0, vjust = 1, cex = 3,
+                      label =   paste0( "fwdD = " ,round(thisPB$fwdD, digits = 2),
+                                        "\nrevD = " ,round(thisPB$revD, digits = 2),
+                                        "\np = ",format.pval(thisPB$padj, digits = 2),
+                                        '\nIntegration = ',thisPB$strand )) +
     ggplot2::ggtitle(label = exp$name,
-                    subtitle = paste(paste(thisPB$seqnames,
-                                           thisPB$start,
-                                           sep = ':'), thisPB$end, sep = "-")) +
+                     subtitle = paste(paste(thisPB$seqnames,
+                                            thisPB$start,
+                                            sep = ':'), thisPB$end, sep = "-")) +
     ggplot2::theme(panel.spacing.y = ggplot2::unit(0, units = 'cm'),
                    panel.background = ggplot2::element_rect(fill = NA,
                                                             color = "black",
@@ -218,14 +241,19 @@ getYticks = function(reads, thisPB){
   topExta$y = topExta$y[!is.na(topExta$y)]
 
   # check for too close to ends: has to be 25% away
-  if(botExta$y[1] - floor(botExta$y[1] *0.25) < botExta$y[2]){
-    botExta$y = botExta$y[-2]
-    botExta$x = botExta$x[-2]
+
+  if(length(botExta$y) > 1){
+    if(botExta$y[1] - floor(botExta$y[1] *0.25) < botExta$y[2]){
+      botExta$y = botExta$y[-2]
+      botExta$x = botExta$x[-2]
+    }
   }
 
-  if(topExta$x[length(topExta$x)] - floor(topExta$x[length(topExta$x)]*0.25) < topExta$x[length(topExta$x) - 1]){
-    topExta$y = topExta$y[-(length(topExta$x)-1)]
-    topExta$x = topExta$x[-(length(topExta$x)-1)]
+  if(length(topExta$x) > 1){
+    if(topExta$x[length(topExta$x)] - floor(topExta$x[length(topExta$x)]*0.25) < topExta$x[length(topExta$x) - 1]){
+      topExta$y = topExta$y[-(length(topExta$x)-1)]
+      topExta$x = topExta$x[-(length(topExta$x)-1)]
+    }
   }
 
   out  = data.frame(breaks = c(botExta$x, topExta$y),
@@ -236,11 +264,3 @@ getYticks = function(reads, thisPB){
   YT = list(out$labels, out$breaks, BMT_breaks[[2]])
   return(YT)
 }
-
-
-
-
-
-
-
-

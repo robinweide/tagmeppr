@@ -12,7 +12,13 @@ public.](https://www.repostatus.org/badges/latest/wip.svg)](https://www.repostat
 [![minimal R
 version](https://img.shields.io/badge/R%3E%3D-3.4.4-blue.svg)](https://cran.r-project.org/)
 
-A computational pipeline to map tagmap-insertions
+*A computational pipeline to map tagmap-insertions*
+
+TagMap is a very useful methods for transposon mapping (Stern 2017),
+enabling researchers to map the insertion sites with ease and generate
+long sequencing reads. However, there is little to none automatisation
+and downstream analysis software available for these reads. TagMeppr is
+an easy to use, memory efficient fastq-to-figure package written in R.
 
 ## Installation
 
@@ -38,3 +44,15 @@ align(exp = C9,
 Please note that this project is released with a [Contributor Code of
 Conduct](.github/CODE_OF_CONDUCT.md). By participating in this project
 you agree to abide by its terms.
+
+<div id="refs" class="references">
+
+<div id="ref-Stern037762">
+
+Stern, David L. 2017. “Tagmentation-Based Mapping (Tagmap) of Mobile Dna
+Genomic Insertion Sites.” *bioRxiv*. Cold Spring Harbor Laboratory.
+<https://doi.org/10.1101/037762>.
+
+</div>
+
+</div>

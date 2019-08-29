@@ -5,7 +5,7 @@
 \title{plotInsertions}
 \usage{
 plotInsertions(exp, chrom = paste0("chr", c(1:25, "X")),
-  colours = NULL, sideBySide = F, p = 0.05)
+  colours = NULL, sideBySide = F, p = 0.05, showOrientation = F)
 }
 \arguments{
 \item{exp}{A list or singular instance of tagMeppr-object(s):
@@ -19,6 +19,8 @@ first run \code{\link{findInsertions}}.}
 
 \item{p}{Set a p-value treshold
 all (colour-coded) objects inside one ideogram.}
+
+\item{showOrientation}{Split hits on orientation.}
 }
 \value{
 An object of the class ggplot.

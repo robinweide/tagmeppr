@@ -1,5 +1,6 @@
 ---
 output: github_document
+bibliography: vignettes/tagmentation-based-mapping-(tagmap)-of-mobile-dna-genomic-insertion-sites.bib
 ---
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
@@ -20,7 +21,13 @@ knitr::opts_chunk$set(
 [![minimal R version](https://img.shields.io/badge/R%3E%3D-3.4.4-blue.svg)](https://cran.r-project.org/)
 
 
-A computational pipeline to map tagmap-insertions
+*A computational pipeline to map TagMap-reads*
+
+TagMap is a very useful method for transposon mapping [@Stern037762], enabling 
+researchers to map the insertion sites with ease and generate long sequencing 
+reads. However, there is little to none automatisation and downstream analysis 
+software available for these reads. TagMeppr is an easy to use, memory 
+efficient fastq-to-figure package written in R.
 
 ## Installation
 

@@ -32,6 +32,7 @@
 #' \item{targetInsertionSite}{The targetInsertionSite}
 #' \item{insertName}{The name of the transposon in the hybrid reference}
 #' \item{seqinfo}{A seqinfo object of all chromosomes in index.}
+#' \item{NpadRange}{The positions of the N-padding in the ITR-sequence.}
 #'}
 #'
 #' @importFrom Biostrings readDNAStringSet vmatchPattern writeXStringSet
@@ -52,10 +53,10 @@ makeIndex = function(indexPath, bsgenome = NULL, ITR = "PiggyBac", targetInserti
 
   scaffoldsSeq = NULL
   if(is.null(bsgenome)){
-    bsgenome = "BSgenome.Hsapiens.UCSC.hg19"
+    bsgenome = BSgenome.Hsapiens.UCSC.hg19::BSgenome.Hsapiens.UCSC.hg19
   }
-  scaffoldsSeq = BSgenome::getSeq(get(bsgenome))
-  scaffFai =  GenomeInfoDb::seqinfo(get(bsgenome))
+  scaffoldsSeq = BSgenome::getSeq(bsgenome)
+  scaffFai =  GenomeInfoDb::seqinfo(bsgenome)
 
   ##################################################################### load ITR
   transposonSeq = NULL
@@ -84,7 +85,7 @@ makeIndex = function(indexPath, bsgenome = NULL, ITR = "PiggyBac", targetInserti
 
   if(verbose){message('Writing reference')}
 
-  PAD = gsub(paste0(indexPath,'/',bsgenome,"_",ITR,"_tagMeppRindex.fa.gz"),
+  PAD = gsub(paste0(indexPath,'/',bsgenome@pkgname,"_",ITR,"_tagMeppRindex.fa.gz"),
              pattern = "//",replacement = '/')
 
   Biostrings::writeXStringSet(x = index, filepath = PAD, compress = T)
@@ -92,8 +93,8 @@ makeIndex = function(indexPath, bsgenome = NULL, ITR = "PiggyBac", targetInserti
 
   ########################################################################## FAI
 
-  FAI = suppressWarnings(merge(transFai, scaffFai))
-  FAIdf = as.data.frame(FAI)
+  FAI = suppressWarnings(GenomeInfoDb::merge(transFai, scaffFai))
+  FAIdf = GenomeInfoDb::as.data.frame(FAI)
   FAIPAD =  gsub(x = PAD, pattern = ".fa.gz",
                  replacement = ".fa.gz.fai", fixed = T)
 
@@ -150,13 +151,18 @@ makeIndex = function(indexPath, bsgenome = NULL, ITR = "PiggyBac", targetInserti
   TISpath = gsub(x = PAD, pattern = ".fa.gz", replacement = ".tis", fixed = T)
   rtracklayer::export.bed(TIS, TISpath)
 
+  #################################################################### ITRcoords
+  ITRfa = Biostrings::readDNAStringSet(PAD, "fasta", nrec = 1)
+  ITRpadRange = reduce(vmatchPattern(ITRfa, pattern = "N")[[1]])
+
   ######################################################################## class
   thisTagMepprIndex = structure(list(index = PAD,
                          ITR = ITR,
                          TIS = TIS,
                          targetInsertionSite = targetInsertionSite,
                          insertName = names(transposonSeq),
-                         seqinfo = FAI),
+                         seqinfo = FAI,
+                         NpadRange = ITRpadRange),
                     class = c("tagMepprIndex", "list"))
 
   ####################################################################### return
@@ -175,7 +181,7 @@ makeIndex = function(indexPath, bsgenome = NULL, ITR = "PiggyBac", targetInserti
 #' @examples
 #' \dontrun{
 #' reference_hg19_PB = makeIndex(indexPath = '/home/A.Dent/analysis42/',
-#'                               bsgenome = 'BSgenome.Hsapiens.UCSC.hg19',
+#'                               bsgenome = BSgenome.Hsapiens.UCSC.hg19,
 #'                               ITR = 'PiggyBac')
 #'
 #' # stuff happens and reference_T42 is no longer loaded, so lets load it:
@@ -190,6 +196,7 @@ makeIndex = function(indexPath, bsgenome = NULL, ITR = "PiggyBac", targetInserti
 #' \item{targetInsertionSite}{The targetInsertionSite}
 #' \item{insertName}{The name of the transposon in the hybrid reference}
 #' \item{seqinfo}{A seqinfo object of all chromosomes in index.}
+#' \item{NpadRange}{The positions of the N-padding in the ITR-sequence.}
 #'}
 #'
 #' @importFrom GenomicRanges seqnames
@@ -230,6 +237,9 @@ loadIndex = function(indexPath){
                               isCircular=FAIdf$isCircular, genome=FAIdf$genome)
 
 
+  #################################################################### ITRcoords
+  ITRfa = Biostrings::readDNAStringSet(indexPath, "fasta", nrec = 1)
+  ITRpadRange = reduce(vmatchPattern(ITRfa, pattern = "N")[[1]])
 
   ######################################################################## class
   thisTagMepprIndex = structure(list(index = indexPath,
@@ -237,7 +247,8 @@ loadIndex = function(indexPath){
                                      TIS = TIS,
                                      targetInsertionSite = targetInsertionSite,
                                      insertName =insertName,
-                                     seqinfo = FAI),
+                                     seqinfo = FAI,
+                                     NpadRange = ITRpadRange),
                                 class = c("tagMepprIndex", "list"))
 
   ####################################################################### return

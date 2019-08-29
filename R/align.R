@@ -302,28 +302,58 @@ align = function(exp, ref, cores = 20, empericalCentre = F, verbose = F){
 
   combined = lapply(c('FWD', 'REV'), function(i){
     combined = list(mainCorpus[[i]],SAlist[[i]],XAlist[[i]])
+
     combined <- suppressWarnings(dplyr::bind_rows(combined))
-    combined = unique(combined)
 
-    # split combined on the mapping-position in the casette
-    tmpCassette = combined[combined$seqnames == exp$insertName, ]
-    orDF = data.frame(readName = tmpCassette$readName,
-                      orientation = ifelse( (tmpCassette$start + 2) < cassMid, 5,3))
-    combined = suppressWarnings(dplyr::full_join(combined, orDF, by = c("readName")))
-
-    # remove read with no cassette-loc
-    combined = combined[!is.na(combined$orientation), ]
-
-    unique(combined)
   })
 
-  exp$alignedReadsFWD = GenomicRanges::makeGRangesFromDataFrame( combined[[1]],
+
+  alignedReadsFWD = GenomicRanges::makeGRangesFromDataFrame( combined[[1]],
                                                                  keep.extra.columns = T)
-  exp$alignedReadsREV = GenomicRanges::makeGRangesFromDataFrame( combined[[2]],
+  alignedReadsREV = GenomicRanges::makeGRangesFromDataFrame( combined[[2]],
                                                                  keep.extra.columns = T)
-  exp$insertionMid = cassMid
+
+
+
+
+  #################################################################### ITRs
+  # get a GRanges ofthe two arms: this biostrings should be in the ref-object
+  ITRpadRange = ref$NpadRange
+
+  #################################################################### prettyBam
+  ### FWD
+
+  BiocGenerics::strand(alignedReadsFWD) = "*"
+  alignedReadsFWDlist =  GenomicRanges::split(alignedReadsFWD, ~ readName)
+  alignedReadsFWDlist = GenomicRanges::reduce(alignedReadsFWDlist)
+
+  beforePAD = IRanges::start(alignedReadsFWDlist[seqnames(alignedReadsFWDlist) == exp$insertName]) < IRanges::start(ITRpadRange)
+  S4Vectors::mcols(alignedReadsFWDlist)$beforePad = beforePAD
+  alignedReadsFWD <- IRanges::stack(alignedReadsFWDlist, "readName")
+
+  alignedReadsFWD$beforePad =  vapply(alignedReadsFWD$beforePad , any, FUN.VALUE = logical(1) )
+
+  ### REV
+
+
+  BiocGenerics::strand(alignedReadsREV) = "*"
+  alignedReadsREVlist =  GenomicRanges::split(alignedReadsREV, ~ readName)
+  alignedReadsREVlist = GenomicRanges::reduce(alignedReadsREVlist)
+
+  beforePAD = IRanges::start(alignedReadsREVlist[seqnames(alignedReadsREVlist) == exp$insertName]) < IRanges::start(ITRpadRange)
+  S4Vectors::mcols(alignedReadsREVlist)$beforePad = beforePAD
+  alignedReadsREV <- IRanges::stack(alignedReadsREVlist, "readName")
+
+  alignedReadsREV$beforePad =  vapply(alignedReadsREV$beforePad , any, FUN.VALUE = logical(1) )
+
+
+
 
   ##################################################################### assigner
+  exp$alignedReadsFWD = alignedReadsFWD
+  exp$alignedReadsREV = alignedReadsREV
+  exp$insertionMid = cassMid
+
   tmp = exp
   # get arguments
   name <- sapply(match.call(expand.dots=TRUE)[-1], deparse)

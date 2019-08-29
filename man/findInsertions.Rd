@@ -4,26 +4,30 @@
 \alias{findInsertions}
 \title{findInsertions}
 \usage{
-findInsertions(exp, ref)
+findInsertions(exp, ref, padding = NULL)
 }
 \arguments{
 \item{exp}{The tagMeppr-object of a sample: first run \code{\link{align}}.}
 
 \item{ref}{A reference object of \code{\link{makeIndex}} or \code{\link{loadIndex}}.}
+
+\item{padding}{Add padding to the start/end of reads in relation to the TIS.
+Default is half of the TIS (i.e. 2bp whit Piggybac), meaning that the mapper
+can report a match Xbp further than the TIS (i.e. TTAA).}
 }
 \value{
 The object will be updated with a results-table:
 \describe{
-\item{cnt_FWD}{Forward read-counts at this insertion-site}
-\item{orientation_FWD}{Forward read-orientation at the insertion}
+\item{fwdCount}{Forward read-counts at this insertion-site}
+\item{fwdOrient}{Forward read-orientation at the insertion}
 \item{D_FWD}{The imbalance of forward reads on both sides of the
 site: D = 0 means no imbalance}
-\item{pBinom_FWD}{The probability of the imbalance}
-\item{cnt_REV}{Reverse read-counts at this insertion-site}
-\item{orientation_REV}{Reverse read-orientation at the insertion}
+\item{fwdBinom}{The probability of the imbalance}
+\item{revCount}{Reverse read-counts at this insertion-site}
+\item{revOrient}{Reverse read-orientation at the insertion}
 \item{D_REV}{The imbalance of forward reads on both sides of the site: D = 0
 means no imbalance}
-\item{pBinom_REV}{The probability of the imbalance}
+\item{revBinom}{The probability of the imbalance}
 \item{pMarkerMeppR}{The combined probability of the imbalances}
 \item{padj}{Bonferroni-adjusted probabilties}
 \item{orientation}{The orientation of the insertion}

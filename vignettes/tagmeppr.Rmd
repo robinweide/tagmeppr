@@ -3,6 +3,7 @@ title: "tagMeppr"
 author: "Robin H. van der Weide"
 date: "`r Sys.Date()`"
 output: rmarkdown::pdf_document
+bibliography: tagmentation-based-mapping-(tagmap)-of-mobile-dna-genomic-insertion-sites.bib
 vignette: >
   %\VignetteIndexEntry{Vignette Title}
   %\VignetteEngine{knitr::rmarkdown}
@@ -27,7 +28,13 @@ knitr::include_graphics("logo_tagMeppr.pdf")
 
 Hi there! Welcome! 
 
-```{r lib, eval = F}
+TagMap is a very useful method for transposon mapping [@Stern037762], enabling 
+researchers to map the insertion sites with ease and generate long sequencing 
+reads. However, there is little to none automatisation and downstream analysis 
+software available for these reads. TagMeppr is an easy to use, memory 
+efficient fastq-to-figure package written in R.
+
+```{r lib, eval = T}
 library(tagMeppr)
 ```
 
@@ -39,20 +46,24 @@ organism (e.g. PiggyBac in human cells) you may have.
 ```{r makeIndex, eval = F}
 library("BSgenome.Hsapiens.UCSC.hg19")
 
-reference_hg19_PB = makeIndex(indexPath = '.', 
-                              bsgenome = "BSgenome.Hsapiens.UCSC.hg19", 
+reference_hg19_PB = makeIndex(indexPath = '../premadeReferences/', 
+                              bsgenome = BSgenome.Hsapiens.UCSC.hg19, 
                               ITR = 'PiggyBac', 
-                              targetInsertionSite = 'TTAA')
+                              targetInsertionSite = 'TTAA', verbose = T)
 ```
 
 Loading a tagMepprIndex is easy with loadIndex().
 
-```{r loadIndex, eval=T, cache=T, cache.lazy=F}
+```{r makeIndex2, eval = T, echo = F, results='hide'}
+library("BSgenome.Hsapiens.UCSC.hg19")
+```
+
+```{r loadIndex, eval=T, cache=F, cache.lazy=F}
 reference_hg19_PB = loadIndex('BSgenome.Hsapiens.UCSC.hg19_PiggyBac_tagMeppRindex.fa.gz')
 ```
 
 You can use print() on this tagMepprIndex, which gives you a lot of information: 
-```{r, eval=T, cache=F, cache.lazy=F}
+```{r, eval=T, cache=T, cache.lazy=F}
 print(reference_hg19_PB)
 ```
 
@@ -60,7 +71,7 @@ print(reference_hg19_PB)
 
 ## Creating a new sample
 
-```{r newTagMeppr, eval=T, cache=T, cache.lazy=F}
+```{r newTagMeppr, eval=T, cache=F, cache.lazy=F}
 C91 = newTagMeppr(F1 = 'clone91_FWD_R1.fq.gz',
                  F2 = 'clone91_FWD_R2.fq.gz',
                  R1 = 'clone91_REV_R1.fq.gz',
@@ -70,7 +81,27 @@ C91 = newTagMeppr(F1 = 'clone91_FWD_R1.fq.gz',
 ```
 
 This is the print:
-```{r, eval=T, cache=T, cache.lazy=F}
+```{r, eval=T, cache=F, cache.lazy=F}
+print(C91)
+```
+
+
+## checken 
+Normally, we expect the reverse-primer to be found at the start of the ITR-
+sequence. This can be checked with `checkPrimer()`. If it appears to be to 
+other way around, the sample-object will have a `flipPrimer=T` flag.
+
+Highly recommend this!
+```{r, primerCheck}
+fwdPrimer = "CGTCAATTTTACGCAGACTATC"
+revPrimer = "GTACGTCACAATATGATTATCTTTCTAG"
+
+checkPrimer(fwdPrimer = fwdPrimer, 
+            revPrimer = revPrimer, 
+            exp = C91, 
+            ITR = 'PiggyBac')
+```
+```{r, eval=T, cache=F, cache.lazy=F}
 print(C91)
 ```
 
@@ -88,30 +119,56 @@ align(exp = C91,
 
 
 The object will be updated, which keeps your evironment tidy.
-```{r, eval=T, cache=T, cache.lazy=F}
+```{r, eval=T, cache=F, cache.lazy=F}
 print(C91)
 ```
 
 # Find insertions
 
-```{r FI, eval=T, cache=T, cache.lazy=F}
-findInsertions(C91, reference_hg19_PB)
+
+```{r FI, eval=T, cache=F, cache.lazy=F}
+findInsertions(exp = C91, ref = reference_hg19_PB, padding = 2)
 ```
 
-```{r, eval=T, cache=T, cache.lazy=F}
+```{r, eval=T, cache=F, cache.lazy=F}
 print(C91)
+```
+
+```{r, eval=T, cache=F, cache.lazy=F, fig.align='center', fig.height= 3, fig.width=3}
+foundInsertions = results( C91 )
+
+head(foundInsertions)
+
+barplot(table(foundInsertions$strand), horiz = F,
+        col = tagMepprCol(),
+        main = 'found orientations')
 ```
 
 # Plot
 
-```{r PI, eval=T, cache=T, cache.lazy=F, fig.height= 4, fig.width=6.7}
+## Single insertions
+```{r PLOTsingle, eval=T, cache=T, cache.lazy=F, fig.align='center', out.width='50%', warning=FALSE}
+plotSite(C91,site = 3)
+```
+
+```{r PLOTsingle100, eval=T, cache=T, cache.lazy=F, fig.align='center', out.width='50%', warning=FALSE}
+plotSite(C91,site = 3, maxReads = 100)
+```
+
+## All insertions
+
+```{r PI, eval=T, cache=F, cache.lazy=F, fig.align='center', out.width='50%'}
 plotInsertions(exp = C91)
 ```
 
+show orientation:
+```{r PIo, eval=T, cache=F, cache.lazy=F, fig.align='center', out.width='50%'}
+plotInsertions(exp = C91, showOrientation = T)
+```
 
 ## Plot muliple samples
 
-```{r makeList, eval=T, echo = F, cache=T, cache.lazy=F}
+```{r makeList, eval=T, echo = F, cache=F, cache.lazy=F}
 C91_a = C91
 C91_b = C91
 
@@ -125,11 +182,17 @@ tagMepprSampleList = list(C91_a, C91_b)
 ```
 
 
-```{r PImult1, eval=T, cache=T, cache.lazy=F, fig.height= 4, fig.width=6.7}
-plotInsertions(tagMepprSampleList, sideBySide = F)
+```{r PImult1, eval=T, cache=F, fig.align='center', cache.lazy=F, out.width='50%'}
+plotInsertions(tagMepprSampleList)
+```
+
+```{r PImult1o, eval=T, cache=F, fig.align='center', cache.lazy=F, out.width='50%'}
+plotInsertions(tagMepprSampleList, showOrientation = T)
 ```
 
 
-```{r PImult2, eval=T, cache=T, cache.lazy=F, fig.height= 4, fig.width=6.7}
+```{r PImult2, eval=T, cache=F, cache.lazy=F, fig.align='center', out.width='50%'}
 plotInsertions(tagMepprSampleList, sideBySide = T)
 ```
+
+# Biography
