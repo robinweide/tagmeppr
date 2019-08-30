@@ -70,9 +70,9 @@ print.tagMepprSample <- function(x){
 #' @param orientation Select insertions with a specific orientation
 #' @param ... other arguments
 #' @examples
-#'
+#' \dontrun{
 #' results(tagMepprSample, alpha = 0.05, countThreshold = 100)
-#'
+#' }
 #' @export
 results <- function(tagMepprSample, alpha = 1, countThreshold = 0) UseMethod("results")
 
