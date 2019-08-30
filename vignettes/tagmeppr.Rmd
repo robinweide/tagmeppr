@@ -100,7 +100,7 @@ sequence. This can be checked with `checkPrimer()`. If it appears to be to
 other way around, the sample-object will have a `flipPrimer=T` flag.
 
 Highly recommend this!
-```{r, primerCheck}
+```{r primerCheck, eval = TRAVIS}
 fwdPrimer = "CGTCAATTTTACGCAGACTATC"
 revPrimer = "GTACGTCACAATATGATTATCTTTCTAG"
 
@@ -109,6 +109,7 @@ checkPrimer(fwdPrimer = fwdPrimer,
             exp = C91, 
             ITR = 'PiggyBac')
 ```
+
 ```{r, eval = TRAVIS, cache=F, cache.lazy=F}
 print(C91)
 ```
