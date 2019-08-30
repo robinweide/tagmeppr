@@ -1,6 +1,7 @@
 #' @return \code{NULL}
 #'
 #' @title print
+#' @param x A tagMepprIndex object
 #' @export
 print.tagMepprIndex <- function(x){
 
@@ -17,8 +18,9 @@ print.tagMepprIndex <- function(x){
 #' @return \code{NULL}
 #'
 #' @title print
-#' @export
+#' @param x A tagMepprSample object
 #' @importFrom GenomicRanges reduce
+#' @export
 print.tagMepprSample <- function(x){
 
   # name
@@ -74,7 +76,7 @@ print.tagMepprSample <- function(x){
 #' results(tagMepprSample, alpha = 0.05, countThreshold = 100)
 #' }
 #' @export
-results <- function(tagMepprSample, alpha = 1, countThreshold = 0) UseMethod("results")
+results <- function(tagMepprSample, alpha = 1, countThreshold = 0, orientation = "*") UseMethod("results")
 
 
 #' @export
@@ -104,15 +106,3 @@ results.tagMepprSample <- function(tagMepprSample, alpha = 1, countThreshold = 0
   }
   return(x)
 }
-
-
-
-
-
-
-
-
-
-
-
-

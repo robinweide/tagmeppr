@@ -29,6 +29,10 @@ reads. However, there is little to none automatisation and downstream analysis
 software available for these reads. TagMeppr is an easy to use, memory 
 efficient fastq-to-figure package written in R.
 
+```{r, fig.align='center', echo=FALSE}
+knitr::include_graphics("vignettes/TM.png")
+```
+
 ## Installation
 ```{r, eval = FALSE}
 # Install development version from GitHub
@@ -41,6 +45,28 @@ The basic usage of tagMapper revolves around three clear steps:
 1. index: a tagMapper-index is made once for a specific genome and protocol (e.g. hg19 and PigyBac).
 2. align: a tagMapperSample-object is made and aligned to the index
 3. analyse: determine and plot highly likely integraton-sites
+
+Within the analyse-step, you can shoose to look at individual found insertion-
+sites with `plotSite()` to check the read-distribution. Here, reads from the 
+forward and reverse primers overlapping the Target Insertion Site (TIS) are 
+sorted. This can be helpfull for quality-checking and determining if the 
+protocol behaves as expected. In the top-right corner is some important 
+information about the selected hit: the two `D-scores` (denoting the bias 
+of up- and downstream mapping of forward and reverse reads) and the probability. 
+
+```{r, fig.align='center', echo=FALSE}
+knitr::include_graphics("vignettes/tagmeppr_files/figure-latex/PLOTsingle100-1.png")
+```
+
+
+
+You can also look at all found sites in one ideogram with `plotInsertions()`, subsetted on the 
+orientation of the insertion and/or multiple samples. 
+
+```{r, fig.align='center', echo=FALSE}
+knitr::include_graphics("vignettes/tagmeppr_files/figure-latex/PI-1.png")
+```
+
 
 See the [vignette](https://raw.githubusercontent.com/robinweide/tagmeppr/master/vignettes/tagmeppr.pdf) for a more in-depth coverage of all things tagMeppr!
 

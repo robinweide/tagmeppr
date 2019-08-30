@@ -6,6 +6,9 @@
 \usage{
 \method{print}{tagMepprSample}(x)
 }
+\arguments{
+\item{x}{A tagMepprSample object}
+}
 \value{
 \code{NULL}
 }

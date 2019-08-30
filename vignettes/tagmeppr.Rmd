@@ -161,22 +161,22 @@ barplot(table(foundInsertions$strand), horiz = F,
 ### Plot
 
 #### Single insertions
-```{r PLOTsingle, eval = TRAVIS, cache=T, cache.lazy=F, fig.align='center', out.width='50%', warning=FALSE}
+```{r PLOTsingle, eval = TRAVIS, fig.width=10, dpi=300, cache=T, cache.lazy=F, fig.align='center', out.width='50%', warning=FALSE, dev=c('pdf','png')}
 plotSite(C91,site = 3)
 ```
 
-```{r PLOTsingle100, eval = TRAVIS, cache=T, cache.lazy=F, fig.align='center', out.width='50%', warning=FALSE}
+```{r PLOTsingle100, eval = TRAVIS, fig.width=10, dpi=300,cache=T, cache.lazy=F, fig.align='center', out.width='50%', warning=FALSE, dev=c('pdf','png')}
 plotSite(C91,site = 3, maxReads = 100)
 ```
 
 #### All insertions
 
-```{r PI, eval = TRAVIS, cache=F, cache.lazy=F, fig.align='center', out.width='50%'}
+```{r PI, eval = TRAVIS, cache=F, fig.width=10, dpi=300,cache.lazy=F, dev=c('pdf','png'), fig.align='center', out.width='50%'}
 plotInsertions(exp = C91)
 ```
 
 show orientation:
-```{r PIo, eval = TRAVIS, cache=F, cache.lazy=F, fig.align='center', out.width='50%'}
+```{r PIo, eval = TRAVIS, cache=F, fig.width=10, dpi=300,cache.lazy=F, dev=c('pdf','png'), fig.align='center', out.width='50%'}
 plotInsertions(exp = C91, showOrientation = T)
 ```
 
@@ -196,16 +196,16 @@ tagMepprSampleList = list(C91_a, C91_b)
 ```
 
 
-```{r PImult1, eval = TRAVIS, cache=F, fig.align='center', cache.lazy=F, out.width='50%'}
+```{r PImult1, eval = TRAVIS, fig.width=10, dpi=300, dev=c('pdf','png'), fig.align='center', cache.lazy=F, out.width='50%'}
 plotInsertions(tagMepprSampleList)
 ```
 
-```{r PImult1o, eval = TRAVIS, cache=F, fig.align='center', cache.lazy=F, out.width='50%'}
+```{r PImult1o, eval = TRAVIS, fig.width=10, dpi=300,cache=F, dev=c('pdf','png'), fig.align='center', cache.lazy=F, out.width='50%'}
 plotInsertions(tagMepprSampleList, showOrientation = T)
 ```
 
 
-```{r PImult2, eval = TRAVIS, cache=F, cache.lazy=F, fig.align='center', out.width='50%'}
+```{r PImult2, eval = TRAVIS, fig.width=10, dpi=300,cache=F, dev=c('pdf','png'), cache.lazy=F, fig.align='center', out.width='50%'}
 plotInsertions(tagMepprSampleList, sideBySide = T)
 ```
 

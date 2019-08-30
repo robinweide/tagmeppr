@@ -4,7 +4,8 @@
 \alias{results}
 \title{results}
 \usage{
-results(tagMepprSample, alpha = 1, countThreshold = 0)
+results(tagMepprSample, alpha = 1, countThreshold = 0,
+  orientation = "*")
 }
 \arguments{
 \item{tagMepprSample}{Your sample}

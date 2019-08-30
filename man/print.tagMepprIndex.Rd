@@ -6,6 +6,9 @@
 \usage{
 \method{print}{tagMepprIndex}(x)
 }
+\arguments{
+\item{x}{A tagMepprIndex object}
+}
 \value{
 \code{NULL}
 }

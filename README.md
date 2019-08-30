@@ -20,6 +20,8 @@ long sequencing reads. However, there is little to none automatisation
 and downstream analysis software available for these reads. TagMeppr is
 an easy to use, memory efficient fastq-to-figure package written in R.
 
+<img src="vignettes/TM.png" style="display: block; margin: auto;" />
+
 ## Installation
 
 ``` r
@@ -35,6 +37,25 @@ The basic usage of tagMapper revolves around three clear steps:
     protocol (e.g. hg19 and PigyBac).
 2.  align: a tagMapperSample-object is made and aligned to the index
 3.  analyse: determine and plot highly likely integraton-sites
+
+Within the analyse-step, you can shoose to look at individual found
+insertion- sites with `plotSite()` to check the read-distribution. Here,
+reads from the forward and reverse primers overlapping the Target
+Insertion Site (TIS) are sorted. This can be helpfull for
+quality-checking and determining if the protocol behaves as expected. In
+the top-right corner is some important information about the selected
+hit: the two `D-scores` (denoting the bias of up- and downstream mapping
+of forward and reverse reads) and the
+probability.
+
+<img src="vignettes/tagmeppr_files/figure-latex/PLOTsingle100-1.png" style="display: block; margin: auto;" />
+
+You can also look at all found sites in one ideogram with
+`plotInsertions()`, subsetted on the orientation of the insertion and/or
+multiple
+samples.
+
+<img src="vignettes/tagmeppr_files/figure-latex/PI-1.png" style="display: block; margin: auto;" />
 
 See the
 [vignette](https://raw.githubusercontent.com/robinweide/tagmeppr/master/vignettes/tagmeppr.pdf)
