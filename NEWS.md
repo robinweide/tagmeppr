@@ -12,6 +12,7 @@
 * `results()` now enables filtering on pvalue, counts and orientation
 * `plotSite()` is ready to use and also shows the orientation
 * a bug `plotSite()` regarding x-ticks is fixed
+* Write readme
 
 # tagmeppr 0.1
 

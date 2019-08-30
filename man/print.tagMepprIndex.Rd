@@ -4,10 +4,12 @@
 \alias{print.tagMepprIndex}
 \title{print}
 \usage{
-\method{print}{tagMepprIndex}(x)
+\method{print}{tagMepprIndex}(x, ...)
 }
 \arguments{
 \item{x}{A tagMepprIndex object}
+
+\item{...}{further arguments passed to or from other methods.}
 }
 \value{
 \code{NULL}

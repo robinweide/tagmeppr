@@ -3,7 +3,6 @@ title: To-Do
 ---
 
 ## Urgent-Important:
-* Write readme
 * Write vignette
 
 ## Not Urgent - Important:

@@ -4,10 +4,12 @@
 \alias{print.tagMepprSample}
 \title{print}
 \usage{
-\method{print}{tagMepprSample}(x)
+\method{print}{tagMepprSample}(x, ...)
 }
 \arguments{
 \item{x}{A tagMepprSample object}
+
+\item{...}{further arguments passed to or from other methods.}
 }
 \value{
 \code{NULL}

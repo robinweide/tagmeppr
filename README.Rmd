@@ -46,7 +46,7 @@ The basic usage of tagMapper revolves around three clear steps:
 2. align: a tagMapperSample-object is made and aligned to the index
 3. analyse: determine and plot highly likely integraton-sites
 
-Within the analyse-step, you can shoose to look at individual found insertion-
+Within the analyse-step, you can choose to look at individually found insertion-
 sites with `plotSite()` to check the read-distribution. Here, reads from the 
 forward and reverse primers overlapping the Target Insertion Site (TIS) are 
 sorted. This can be helpfull for quality-checking and determining if the 
@@ -57,8 +57,6 @@ of up- and downstream mapping of forward and reverse reads) and the probability.
 ```{r, fig.align='center', echo=FALSE}
 knitr::include_graphics("vignettes/tagmeppr_files/figure-latex/PLOTsingle100-1.png")
 ```
-
-
 
 You can also look at all found sites in one ideogram with `plotInsertions()`, subsetted on the 
 orientation of the insertion and/or multiple samples. 

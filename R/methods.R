@@ -2,8 +2,9 @@
 #'
 #' @title print
 #' @param x A tagMepprIndex object
+#' @param ... further arguments passed to or from other methods.
 #' @export
-print.tagMepprIndex <- function(x){
+print.tagMepprIndex <- function(x, ...){
 
   cat(paste0('tagMepprIndex\n\n'))
   cat(paste0('\tProtocol: ', x$ITR,"\n\n"))
@@ -19,9 +20,10 @@ print.tagMepprIndex <- function(x){
 #'
 #' @title print
 #' @param x A tagMepprSample object
+#' @param ... further arguments passed to or from other methods.
 #' @importFrom GenomicRanges reduce
 #' @export
-print.tagMepprSample <- function(x){
+print.tagMepprSample <- function(x, ...){
 
   # name
   # protocol
