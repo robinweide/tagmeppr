@@ -29,15 +29,16 @@ devtools::install_github("robinweide/tagmeppr")
 
 ## Usage
 
-To align the tagMeppr-sample to the index, just use the
-`align()`-function.
+The basic usage of tagMapper revolves around three clear steps:
 
-``` r
-align(exp = C9, 
-      ref = reference_hg19_PB, 
-      cores = 30, 
-      empericalCentre = T)
-```
+1.  index: a tagMapper-index is made once for a specific genome and
+    protocol (e.g. hg19 and PigyBac).
+2.  align: a tagMapperSample-object is made and aligned to the index
+3.  analyse: determine and plot highly likely integraton-sites
+
+See the
+[vignette](https://raw.githubusercontent.com/robinweide/tagmeppr/master/vignettes/tagmeppr.pdf)
+for a more in-depth coverage of all things tagMeppr\!
 
 ## Code of conduct
 
@@ -45,7 +46,7 @@ Please note that this project is released with a [Contributor Code of
 Conduct](.github/CODE_OF_CONDUCT.md). By participating in this project
 you agree to abide by its terms.
 
-## Biography
+-----
 
 <div id="refs" class="references">
 
