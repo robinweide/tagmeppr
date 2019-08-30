@@ -24,7 +24,7 @@ Obtain the results
 Running this will generate a data.frame of results
 }
 \examples{
-
+\dontrun{
 results(tagMepprSample, alpha = 0.05, countThreshold = 100)
-
+}
 }

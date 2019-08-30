@@ -121,7 +121,7 @@ To align the tagMeppr-sample to the index, just use the `align()`-function.
 Omg. Mapping without leaving R! Please check if you have BWA and samtools intalled.
 Note no <- signs
 
-```{r align, eval = TRAVIS, cache=T, cache.lazy=F, message=FALSE,results='hide'}
+```{r align, eval = TRAVIS, cache=F, cache.lazy=F, message=FALSE,results='hide'}
 align(exp = C91, 
       ref = reference_hg19_PB, 
       cores = 30, 
