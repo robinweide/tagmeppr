@@ -76,8 +76,11 @@ print(reference_hg19_PB)
 ```
 
 ## tagMepprSample
-
-### Creating a new sample
+The core object of tagMeppr is the tagMepprSample. Everything, from the paths of 
+the fastq's to the final results, are stored in this object. To kick off the 
+analysis, such an object should be made for every sample by using 'newTagMeppr()'. 
+In this function, the paths of the four respective fastq's, the name of the 
+sample and the transposon are asked.
 
 ```{r newTagMeppr, eval = TRAVIS, cache=F, cache.lazy=F}
 C91 = newTagMeppr(F1 = 'clone91_FWD_R1.fq.gz',
@@ -88,18 +91,23 @@ C91 = newTagMeppr(F1 = 'clone91_FWD_R1.fq.gz',
                  protocol = 'PiggyBac')
 ```
 
-This is the print:
+When you use the 'print()' method, a summary will be given about the sample.
 ```{r, eval = TRAVIS, cache=F, cache.lazy=F}
 print(C91)
 ```
 
 
-### checken 
-Normally, we expect the reverse-primer to be found at the start of the ITR-
-sequence. This can be checked with `checkPrimer()`. If it appears to be to 
-other way around, the sample-object will have a `flipPrimer=T` flag.
+### primer-checks 
+After this, it is a good idea to check whether your primer-design is one that 
+tagMeppr expects: reverse- and forward-primers on different ITRs. Also, it 
+checks if the reverse is found near the start of the transposon. This is to be 
+able to accurately denote the orientation of the transposon. Normally, we 
+expect the reverse-primer to be found at the start of the ITR-sequence. When 
+running 'checkPrimer()', it will automatically update the tagMepprSample-object 
+with the 'rev5_fwd3' tag. If it appears to be to other way around, the sample-
+object will have a `rev5_fwd3=T` flag.
 
-Highly recommend this!
+It is highly recommended to do this!
 ```{r primerCheck, eval = TRAVIS}
 fwdPrimer = "CGTCAATTTTACGCAGACTATC"
 revPrimer = "GTACGTCACAATATGATTATCTTTCTAG"
