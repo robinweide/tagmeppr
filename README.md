@@ -28,6 +28,27 @@ an easy to use, memory efficient fastq-to-figure package written in R.
 # Install development version from GitHub
 devtools::install_github("robinweide/tagmeppr")
 ```
+## The method
+The `findInsertions()` function will first find all reads that overlap a TIS, 
+which in the case of PiggyBac will be "TTAA". Next it will calculate whether 
+there is a bias towards one side of the TIS using a binominal test. The bias, 
+denoted as $D$, $-1$ when all reads are upstream and $+1$ when all reads are 
+downstream of the TIS.This is done independently for the forward and reverse 
+reads:
+
+$p_{fwd/rev} = \binom{reads_{D<0}}{reads}$
+
+Next, we filter out TISs which have the bias on the same side of the TIS:
+
+$sgn(D_{fwd}) \neq sgn(D_{rev})$
+
+To calculate a "TIS-specific" p-value, we use Edgington's sum-p method, which 
+is very conservative in our usage. This ensures that, when 
+$p_{combined} < \alpha$, both the fwd and the rev reads are indeed biased.
+
+$p_{combined} = \dfrac{(\sum_{i=1}^{2} p_i)^{2}}{2!}$
+
+Afterwards, a holm-correction is done to limit the Family-Wise Error Rate (FWER).
 
 ## Usage
 
