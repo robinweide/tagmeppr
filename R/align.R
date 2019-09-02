@@ -57,6 +57,15 @@
 #'
 align = function(exp, ref, cores = 20, empericalCentre = F, verbose = F){
 
+  if(system('bwa version',ignore.stderr = T, ignore.stdout = T) == 127){
+    stop('bwa not found')
+  }
+
+  if(system('samtools version',ignore.stderr = T, ignore.stdout = T) == 127){
+    stop('samtools not found')
+  }
+
+
   folder = paste0('/tmp/',runIDgen(1))
 
   while(dir.exists(folder)){

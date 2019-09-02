@@ -13,6 +13,7 @@
 * `plotSite()` is ready to use and also shows the orientation
 * a bug `plotSite()` regarding x-ticks is fixed
 * Write readme
+* checks if bwa and samtools are found
 
 # tagmeppr 0.1
 

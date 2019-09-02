@@ -76,9 +76,9 @@ print(reference_hg19_PB)
 ```
 
 ## tagMepprSample
-The core object of tagMeppr is the tagMepprSample. Everything, from the paths of 
+The core object of tagMeppr is the `tagMepprSample`. Everything, from the paths of 
 the fastq's to the final results, are stored in this object. To kick off the 
-analysis, such an object should be made for every sample by using 'newTagMeppr()'. 
+analysis, such an object should be made for every sample by using `newTagMeppr()`. 
 In this function, the paths of the four respective fastq's, the name of the 
 sample and the transposon are asked.
 
@@ -91,7 +91,8 @@ C91 = newTagMeppr(F1 = 'clone91_FWD_R1.fq.gz',
                  protocol = 'PiggyBac')
 ```
 
-When you use the 'print()' method, a summary will be given about the sample.
+When you use the `print()` method, a summary will be given about the sample and 
+its progression trough the tagMeppr-pipeline.
 ```{r, eval = TRAVIS, cache=F, cache.lazy=F}
 print(C91)
 ```
@@ -103,8 +104,8 @@ tagMeppr expects: reverse- and forward-primers on different ITRs. Also, it
 checks if the reverse is found near the start of the transposon. This is to be 
 able to accurately denote the orientation of the transposon. Normally, we 
 expect the reverse-primer to be found at the start of the ITR-sequence. When 
-running 'checkPrimer()', it will automatically update the tagMepprSample-object 
-with the 'rev5_fwd3' tag. If it appears to be to other way around, the sample-
+running `checkPrimer()`, it will automatically update the tagMepprSample-object 
+with the `rev5_fwd3` tag. If it appears to be to other way around, the sample-
 object will have a `rev5_fwd3=T` flag.
 
 It is highly recommended to do this!
@@ -123,11 +124,12 @@ print(C91)
 ```
 
 ## Align
-To align the tagMeppr-sample to the index, just use the `align()`-function.
-
-
-Omg. Mapping without leaving R! Please check if you have BWA and samtools intalled.
-Note no <- signs
+To align the tagMeppr-sample to the index, use the `align()`-function. This will 
+call `bwa mem` and run it with optimal parameters set. If `bwa` or `samtools` 
+are not installed, the function will can an error. Afterwards, the chimeric 
+reads will be filtered and placed in a `GRanges` object for easy usage later 
+on. Running `align()` will automatically update the `tagMeppr-sample` to 
+include the parsed reads.
 
 ```{r align, eval = TRAVIS, cache=F, cache.lazy=F, message=FALSE,results='hide'}
 align(exp = C91, 
@@ -136,9 +138,9 @@ align(exp = C91,
       empericalCentre = T)
 ```
 
-
-
-The object will be updated, which keeps your evironment tidy.
+The object will be updated, which keeps your evironment tidy. The summary will 
+now also show the number of informative reads (i.e. a chimeric read to both an 
+ITR and the reference) and the temporary folder of the .BAM-files.
 ```{r, eval = TRAVIS, cache=F, cache.lazy=F}
 print(C91)
 ```
@@ -146,7 +148,26 @@ print(C91)
 ## Analysis
 
 ### Find insertions
+The `findInsertions()` function will first find all reads that overlap a TIS, 
+which in the case of PiggyBac will be "TTAA". Next it will calculate whether 
+there is a bias towards one side of the TIS using a binominal test. The bias, 
+denoted as $D$, $-1$ when all reads are upstream and $+1$ when all reads are 
+downstream of the TIS.This is done independently for the forward and reverse 
+reads:
 
+$p_{fwd/rev} = \binom{reads_{D<0}}{reads}$
+
+Next, we filter out TISs which have the bias on the same side of the TIS:
+
+$sgn(D_{fwd}) \neq sgn(D_{rev})$
+
+To calculate a "TIS-specific" p-value, we use Edgington's sum-p method, which 
+is very conservative in our usage. This ensures that, when 
+$p_{combined} < \alpha$, both the fwd and the rev reads are indeed biased.
+
+$p_{combined} = \dfrac{(\sum_{i=1}^{2} p_i)^{2}}{2!}$
+
+Afterwards, a holm-correction is done to limit the Family-Wise Error Rate (FWER).
 
 ```{r FI, eval = TRAVIS, cache=F, cache.lazy=F}
 findInsertions(exp = C91, ref = reference_hg19_PB, padding = 2)

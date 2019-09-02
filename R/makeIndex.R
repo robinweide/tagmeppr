@@ -48,6 +48,10 @@
 makeIndex = function(indexPath, bsgenome = NULL, ITR = "PiggyBac", targetInsertionSite = 'TTAA', blockSizeMult = NULL, verbose = F){
 
 
+  if(system('bwa version',ignore.stderr = T, ignore.stdout = T) == 127){
+    stop('bwa not found')
+  }
+
   ################################################################# load bsgenome
   if(verbose){message('Loading references')}
 
