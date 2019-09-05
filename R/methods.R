@@ -45,6 +45,9 @@ print.tagMepprSample <- function(x, ...){
   } else {
 
     cat(paste0('\tAlignment-folder: ', x$alignmentFolder,"\n"))
+    if(! x$dedup ){
+      cat(paste0('\tDeduplicated: ', x$dedup,"\n"))
+    }
     cat(paste0('\tInformative FWD-reads: ', length(unique(x$alignedReadsFWD$readName)),"\n"))
     cat(paste0('\tInformative REV-reads: ', length(unique(x$alignedReadsREV$readName)),"\n"))
 
@@ -104,7 +107,14 @@ results.tagMepprSample <- function(tagMepprSample, alpha = 1, countThreshold = 0
     x$pval[x$pval < 2e-16] = 2e-16
     x$padj[x$padj < 2e-16] = 2e-16
     rownames(x) = NULL
-    x = x[,-c(6,8,10,12,13)][,c(1:5,7,6,8,9)]
+    x = x[,c(1:5,8,6,9,12)]
   }
   return(x)
 }
+
+
+
+
+
+
+

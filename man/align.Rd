@@ -4,7 +4,8 @@
 \alias{align}
 \title{align}
 \usage{
-align(exp, ref, cores = 20, empericalCentre = F, verbose = F)
+align(exp, ref, cores = 20, dedup = T, empericalCentre = F,
+  verbose = F)
 }
 \arguments{
 \item{exp}{The tagMeppr-object of a sample.}
@@ -12,6 +13,8 @@ align(exp, ref, cores = 20, empericalCentre = F, verbose = F)
 \item{ref}{A reference object of \code{\link{makeIndex}} or \code{\link{loadIndex}}.}
 
 \item{cores}{The number of threads used in the mapping-stage.}
+
+\item{dedup}{Remove suspected PCR-duplicates?}
 
 \item{empericalCentre}{The location of the center of the inserted sequence
 in the transposon.fa. This is needed to find the orientation of the

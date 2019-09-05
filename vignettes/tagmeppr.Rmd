@@ -134,8 +134,7 @@ include the parsed reads.
 ```{r align, eval = TRAVIS, cache=F, cache.lazy=F, message=FALSE,results='hide'}
 align(exp = C91, 
       ref = reference_hg19_PB, 
-      cores = 30, 
-      empericalCentre = T)
+      cores = 30)
 ```
 
 The object will be updated, which keeps your evironment tidy. The summary will 
@@ -144,6 +143,26 @@ ITR and the reference) and the temporary folder of the .BAM-files.
 ```{r, eval = TRAVIS, cache=F, cache.lazy=F}
 print(C91)
 ```
+
+### PCR-duplicates
+By default, `align()` will remove suspected PCR-duplicates. This is not possible 
+with normal tools like `samtools` due to the chimeric nature of the reads. If 
+one doesn't want this deduplication to happen, set `dedup=F` in `align()`. 
+
+```{r alignNonDedup, eval = TRAVIS, cache=F, cache.lazy=F, message=FALSE,results='hide'}
+C91_noDedup = C91
+align(exp = C91_noDedup, 
+      ref = reference_hg19_PB,
+      dedup = F,
+      cores = 30)
+```
+
+The output of the `print()`-command will now show that deduplication didn't 
+happen.
+```{r, eval = TRAVIS, cache=F, cache.lazy=F}
+print(C91_noDedup)
+```
+
 
 ## Analysis
 
@@ -155,22 +174,38 @@ denoted as $D$, $-1$ when all reads are upstream and $+1$ when all reads are
 downstream of the TIS.This is done independently for the forward and reverse 
 reads:
 
-$p_{fwd/rev} = \binom{reads_{D<0}}{reads}$
+$$
+\begin{aligned}
+p_{fwd/rev} = \binom{reads_{D<0}}{reads}
+\end{aligned}
+$$
 
 Next, we filter out TISs which have the bias on the same side of the TIS:
 
-$sgn(D_{fwd}) \neq sgn(D_{rev})$
+$$
+\begin{aligned}
+sgn(D_{fwd}) \neq sgn(D_{rev})
+\end{aligned}
+$$
 
 To calculate a "TIS-specific" p-value, we use Edgington's sum-p method, which 
 is very conservative in our usage. This ensures that, when 
 $p_{combined} < \alpha$, both the fwd and the rev reads are indeed biased.
 
-$p_{combined} = \dfrac{(\sum_{i=1}^{2} p_i)^{2}}{2!}$
+$$
+\begin{aligned}
+p_{combined} = \dfrac{(\sum_{i=1}^{2} p_i)^{2}}{2!}
+\end{aligned}
+$$
 
 Afterwards, a holm-correction is done to limit the Family-Wise Error Rate (FWER).
 
 ```{r FI, eval = TRAVIS, cache=F, cache.lazy=F}
 findInsertions(exp = C91, ref = reference_hg19_PB, padding = 2)
+```
+
+```{r FI_noDedup, eval = TRAVIS, cache=F, cache.lazy=F, echo = F}
+findInsertions(exp = C91_noDedup, ref = reference_hg19_PB, padding = 2)
 ```
 
 ```{r, eval = TRAVIS, cache=F, cache.lazy=F}
@@ -190,12 +225,20 @@ barplot(table(foundInsertions$strand), horiz = F,
 ### Plot
 
 #### Single insertions
-```{r PLOTsingle, eval = TRAVIS, fig.width=10, dpi=300, cache=T, cache.lazy=F, fig.align='center', out.width='50%', warning=FALSE, dev=c('pdf','png')}
+```{r PLOTsingle, eval = TRAVIS, fig.width=10, dpi=300, cache=F, cache.lazy=F, fig.align='center', out.width='50%', warning=FALSE, dev=c('pdf','png')}
 plotSite(C91,site = 3)
 ```
 
-```{r PLOTsingle100, eval = TRAVIS, fig.width=10, dpi=300,cache=T, cache.lazy=F, fig.align='center', out.width='50%', warning=FALSE, dev=c('pdf','png')}
-plotSite(C91,site = 3, maxReads = 100)
+
+Returning to the sample witout deduplication, one can now see what would happen:
+
+```{r PLOTsinglenoDedup, eval = TRAVIS, fig.width=10, dpi=300,cache=F, cache.lazy=F, fig.align='center', out.width='50%', warning=FALSE, dev=c('pdf','png')}
+plotSite(C91_noDedup,site = 3)
+```
+
+You can also set a limit on the maximum number of reads shown:
+```{r PLOTsingle100, eval = TRAVIS, fig.width=10, dpi=300,cache=F, cache.lazy=F, fig.align='center', out.width='50%', warning=FALSE, dev=c('pdf','png')}
+plotSite(C91_noDedup,site = 3, maxReads = 100)
 ```
 
 #### All insertions
@@ -237,5 +280,39 @@ plotInsertions(tagMepprSampleList, showOrientation = T)
 ```{r PImult2, eval = TRAVIS, fig.width=10, dpi=300,cache=F, dev=c('pdf','png'), cache.lazy=F, fig.align='center', out.width='50%'}
 plotInsertions(tagMepprSampleList, sideBySide = T)
 ```
+
+### significance
+```{r sing, eval = TRAVIS, echo = F, fig.width=10, dpi=300,cache=F, dev=c('pdf','png'), cache.lazy=F, fig.align='center', out.width='50%'}
+cnt1 = seq(1:20)
+cnt2 = seq(1:20)
+CNTS = data.frame(P_fwd = rep(cnt1, 20), P_rev = rep(cnt2, each = 20))
+CNTS$p = apply(CNTS, 1, function(x){
+  p = metap::sump(c(binom.test(x[1],x[1])$p.value, binom.test(x[2],x[2])$p.value))$p
+})
+CNTS.bk = CNTS
+CNTS$p = -log10(CNTS$p)
+CNTS = CNTS[CNTS$P_rev < CNTS$P_fwd, ]
+sigs = CNTS.bk[CNTS.bk$p < 0.05, 1:2]
+sigs$SIG = "*"
+sigs$p = 0
+
+library(ggplot2)
+ggplot(CNTS, aes(x= P_rev, y = P_fwd, fill = p)) +
+  geom_raster() +
+  scale_fill_distiller(palette = 'PuRd', direction = 1)+
+  coord_fixed(expand = F) +
+  theme_classic()+
+  labs(fill = '-log10(P)', title = 'expected significances', 
+       subtitle = 'assuming |D| == 1', x = 'fwd counts', y = 'rev counts')+
+  geom_text(data = sigs[sigs$P_fwd <= sigs$P_rev,], mapping = aes( label = SIG))+
+  annotate('segment', x = 4.5, xend = 20.5, y = 2.5, yend = 2.5)+
+  annotate('segment', y = 4.5, yend = 20.5, x = 2.5, xend = 2.5)+
+  annotate('segment', x = 2.5, xend = 3.5, y = 4.5, yend = 4.5)+
+  annotate('segment', y = 2.5, yend = 3.5, x = 4.5, xend = 4.5)+
+  annotate('segment', x = 3.5, xend = 4.5, y = 3.5, yend = 3.5) +
+  annotate('segment', y = 3.5, yend = 4.5, x = 3.5, xend = 3.5)
+
+```
+
 
 ## Biography

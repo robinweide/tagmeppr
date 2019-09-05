@@ -6,6 +6,7 @@
 #' @param exp The tagMeppr-object of a sample.
 #' @param ref A reference object of \code{\link{makeIndex}} or \code{\link{loadIndex}}.
 #' @param cores The number of threads used in the mapping-stage.
+#' @param dedup Remove suspected PCR-duplicates?
 #' @param empericalCentre The location of the center of the inserted sequence
 #' in the transposon.fa. This is needed to find the orientation of the
 #' insertion. Can be T, F or numeric:
@@ -55,7 +56,7 @@
 #' @importFrom BiocGenerics strand
 #' @export
 #'
-align = function(exp, ref, cores = 20, empericalCentre = F, verbose = F){
+align = function(exp, ref, cores = 20, dedup = T, empericalCentre = F, verbose = F){
 
   if(system('bwa version',ignore.stderr = T, ignore.stdout = T) == 127){
     stop('bwa not found')
@@ -203,6 +204,8 @@ align = function(exp, ref, cores = 20, empericalCentre = F, verbose = F){
   bla = file.remove(paste0(folder,
                            "/REV.sam"))
 
+
+  # clean ----------------------------------------------------------------------
   exp$alignmentFolder = folder
   exp$insertName = ref$insertName
   exp$seqinfo = ref$seqinfo
@@ -356,6 +359,14 @@ align = function(exp, ref, cores = 20, empericalCentre = F, verbose = F){
   alignedReadsREV$beforePad =  vapply(alignedReadsREV$beforePad , any, FUN.VALUE = logical(1) )
 
 
+  #########################################################################dedup
+  if(verbose){message('Running dedup')}
+  exp$dedup = F
+  if(dedup){
+    exp$dedup = T
+    alignedReadsFWD = dedupAR(alignedReadsFWD)
+    alignedReadsREV = dedupAR(alignedReadsREV)
+  }
 
 
   ##################################################################### assigner

@@ -96,7 +96,8 @@ empericalTransposonCentre = function(exp, ref){
     Nranges = IRanges::reduce(Biostrings::vmatchPattern("N",transposonSeq)[[1]])
     Nranges = Nranges[base::which.max(S4Vectors::width(Nranges))]
 
-    MID = IRanges::mean(Nranges)
+    IRDF = IRanges::as.data.frame(Nranges)[1,]
+    MID = IRDF[,2] - IRDF[,3]/2
 
   } else {
   # 2. if no Ns, get coverage-distribution
@@ -117,4 +118,47 @@ empericalTransposonCentre = function(exp, ref){
 
   return( MID)
 
+}
+
+
+dedupAR = function(AR){
+
+  # make a string of ranges pluts cigar
+  AR$string = GR2string(AR)
+
+  # combine strings of the same readname
+  L = split(AR$string, AR$readName)
+  STRINGS = unlist(lapply(L, paste, collapse = "___"))
+  STRINGSnames = unique(names(STRINGS))
+
+  # find multiples
+  TABLE = table(STRINGS)
+  MULTIPLES = names(TABLE[TABLE > 1])
+
+
+  MDF = as.data.frame(STRINGS[STRINGS %in% MULTIPLES])
+  MDF = split(rownames(MDF), MDF[,1])
+
+  # pick a random one
+  keeps = unname(vapply(MDF, FUN = function(x){sample(x, 1)},
+                        FUN.VALUE = character(1)))
+
+  nonkeeps = STRINGSnames[is.na(match(STRINGSnames, keeps))]
+
+  AR[is.na(BiocGenerics::match(AR$readName, nonkeeps, nomatch=NA_integer_))]
+}
+
+
+
+
+
+#' @importFrom GenomeInfoDb seqnames
+#' @importFrom BiocGenerics start end strand
+GR2string = function(x){
+  if (length(x) == 0L)
+    return(character(0))
+  ans <- paste0(GenomeInfoDb::seqnames(x), ":", BiocGenerics::start(x), "-", BiocGenerics::end(x))
+  if (any(strand(x) != "*"))
+    ans <- paste0(ans, ":", BiocGenerics::strand(x))
+  ans
 }
