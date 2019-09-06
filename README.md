@@ -3,14 +3,16 @@
 
 # tagMeppr <img src="vignettes/logo_tagMeppr.png" align="right" alt="" width="120" />
 
-![GitHub](https://img.shields.io/github/license/robinweide/tagMeppr)
+![GitHub](https://img.shields.io/github/license/robinweide/tagMeppr?color=succes)
 [![Build
 Status](https://travis-ci.org/robinweide/tagmeppr.svg?branch=master)](https://travis-ci.org/robinweide/tagmeppr)
 [![Project Status: Active – The project has reached a stable, usable
 state and is being actively
 developed.](https://www.repostatus.org/badges/latest/active.svg)](https://www.repostatus.org/#active)
 [![minimal R
-version](https://img.shields.io/badge/R%3E%3D-3.4.4-blue.svg)](https://cran.r-project.org/)
+version](https://img.shields.io/badge/R%3E%3D-3.4.4-succes.svg)](https://cran.r-project.org/)
+![GitHub tag (latest by
+date)](https://img.shields.io/github/v/tag/robinweide/tagMeppr?color=succes)
 
 *A computational pipeline to map TagMap-reads*
 
