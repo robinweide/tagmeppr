@@ -49,7 +49,7 @@
 #' @importFrom S4Vectors queryHits subjectHits mcols
 #' @importFrom stats p.adjust
 #' @export
-findInsertions = function(exp, ref, padding = NULL, verbose = T){
+findInsertions = function(exp, ref, padding = NULL){
 
   if(is.null(padding)){
     padding = IRanges::width(ref$TIS[1])/2

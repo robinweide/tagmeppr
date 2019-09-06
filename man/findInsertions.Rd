@@ -4,7 +4,7 @@
 \alias{findInsertions}
 \title{findInsertions}
 \usage{
-findInsertions(exp, ref, padding = NULL, verbose = T)
+findInsertions(exp, ref, padding = NULL)
 }
 \arguments{
 \item{exp}{The tagMeppr-object of a sample: first run \code{\link{align}}.}
