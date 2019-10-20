@@ -128,6 +128,28 @@ findInsertions = function(exp, ref, padding = NULL){
 
     merged = merged[merged$fwdbeforePad != merged$revbeforePad,]
 
+    # if TIS is found twice, this means is has beforePad T and F for both.
+    # keep with highest counts
+    merged$ID <- apply(merged[,1:2], 1, paste0, collapse = "_")
+    TF <- names(table(merged$ID)[table(merged$ID)  > 1])
+
+    if(length(TF) > 0){
+
+      merged <- split(merged,merged$ID)
+
+      merged <- lapply(merged, function(x){
+        if(nrow(x) == 1){
+          x
+        } else {
+          x[which.max(rowSums(x[,c(4,8)])),]
+        }
+      })
+
+      merged <- dplyr::bind_rows(merged)
+
+    }
+    merged$ID <- NULL
+
     ############################################################################
     ########################################################### combine P-values
     ############################################################################
