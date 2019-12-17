@@ -126,6 +126,19 @@ See the
 [vignette](https://raw.githubusercontent.com/robinweide/tagmeppr/master/vignettes/tagmeppr.pdf)
 for a more in-depth coverage of all things tagMeppr\!
 
+
+## BWA not found
+Users with no root-access can install BWA themselves with bioconda or miniconda3. However, Rstudio will have troubles finding BWA. To fix this, run `align()` and `makeIndex` with the following:
+
+```
+library(withr)
+
+with_path("/DATA/usr/r.weide/miniconda3/bin",
+    {align(exp = mysample,
+           ref = reference_mm10_TM,
+           cores = 30)})
+```
+
 ## Code of conduct
 
 Please note that this project is released with a [Contributor Code of
