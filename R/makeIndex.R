@@ -45,13 +45,19 @@
 #' @importFrom utils write.table
 #' @export
 #'
-makeIndex = function(indexPath, bsgenome = NULL, ITR = "PiggyBac", targetInsertionSite = 'TTAA', blockSizeMult = NULL, verbose = F){
+makeIndex = function(indexPath, bsgenome = NULL, ITR = "PiggyBac", targetInsertionSite = 'TTAA', blockSizeMult = NULL, BWA_path = NULL, verbose = F){
 
 
   if(system('bwa version',ignore.stderr = T, ignore.stdout = T) == 127){
     stop('bwa not found')
   }
-
+  
+  BWA <- NULL
+  if(is.null(BWA_path)){
+    BWA <- system('which bwa')
+  } else {
+    BWA <- BWA_path
+  }
   ################################################################# load bsgenome
   if(verbose){message('Loading references')}
 
@@ -116,7 +122,7 @@ makeIndex = function(indexPath, bsgenome = NULL, ITR = "PiggyBac", targetInserti
     )
   }
 
-  system2(wait = F, command = 'bwa', args = c('index',
+  system2(wait = F, command = BWA, args = c('index',
                                               '-b',
                                               format(blockSizeMult*stdBlockSize,
                                                      scientific = FALSE), PAD))
