@@ -17,6 +17,8 @@
 #'   \item{numeric}{Will use this number as the postion of the middle.}
 #' }
 #' @param verbose Do you want a more chatty function?
+#' @param BWA_path A string to the complete BWA-path.
+#' @param samtools_path A string to the complete samtools-path.
 #' @examples
 #' \dontrun{
 #' reference_hg19_PB = makeIndex(indexPath = '/home/A.Dent/analysis42/',
@@ -56,16 +58,29 @@
 #' @importFrom BiocGenerics strand
 #' @export
 #'
-align = function(exp, ref, cores = 20, dedup = T, empericalCentre = F, verbose = F){
+align = function(exp, ref, cores = 20, dedup = T, empericalCentre = F, BWA_path = NULL, samtools_path = NULL, verbose = F){
 
   if(system('bwa version',ignore.stderr = T, ignore.stdout = T) == 127){
     stop('bwa not found')
   }
 
+  BWA <- NULL
+  if(is.null(BWA_path)){
+    BWA <- system('which bwa')
+  } else {
+    BWA <- BWA_path
+  }
+  
   if(system('samtools version',ignore.stderr = T, ignore.stdout = T) == 127){
     stop('samtools not found')
   }
-
+  
+  SAMTOOLS <- NULL
+  if(is.null(samtools_path)){
+    SAMTOOLS <- system('which samtools')
+  } else {
+    SAMTOOLS <- samtools_path
+  }
 
   folder = paste0('/tmp/',runIDgen(1))
 
@@ -76,13 +91,18 @@ align = function(exp, ref, cores = 20, dedup = T, empericalCentre = F, verbose =
   dir.create(folder)
 
   cmd_1 = paste(sep = " ",
-                "bwa mem -v 1 -Y -M -t ",
+                BWA,
+                "mem -v 1 -Y -M -t ",
                 cores,
                 ref$index,
                 exp$F1,
                 exp$F2,
-                "| samtools view -Sb -F 4 -",
-                "| samtools sort -m 1G -@",
+                "|",
+                SAMTOOLS,
+                "view -Sb -F 4 -",
+                "|",
+                SAMTOOLS,
+                "sort -m 1G -@",
                 floor(cores/10)+1,
                 "-O bam -T",
                 paste0(folder,
@@ -90,10 +110,12 @@ align = function(exp, ref, cores = 20, dedup = T, empericalCentre = F, verbose =
                 "- >",
                 paste0(folder,
                        "/FWDtmp.bam;"),
-                "samtools index",
+                SAMTOOLS,
+                "index",
                 paste0(folder,
                        "/FWDtmp.bam;"),
-                "samtools rmdup",
+                SAMTOOLS,
+                "rmdup",
                 paste0(folder,
                        "/FWDtmp.bam"),
                 paste0(folder,
@@ -107,13 +129,18 @@ align = function(exp, ref, cores = 20, dedup = T, empericalCentre = F, verbose =
                            "/FWDtmp.bam.bai"))
 
   cmd_2 = paste(sep = " ",
-                "bwa mem -v 1 -Y -M -t ",
+                BWA,
+                "mem -v 1 -Y -M -t ",
                 cores,
                 ref$index,
                 exp$R1,
                 exp$R2,
-                "| samtools view -Sb -F 4 -",
-                "| samtools sort -m 1G -@",
+                "|",
+                SAMTOOLS,
+                "view -Sb -F 4 -",
+                "|",
+                SAMTOOLS,
+                "sort -m 1G -@",
                 floor(cores/10)+1,
                 "-O bam -T",
                 paste0(folder,
@@ -121,10 +148,12 @@ align = function(exp, ref, cores = 20, dedup = T, empericalCentre = F, verbose =
                 "- >",
                 paste0(folder,
                        "/REVtmp.bam;"),
-                "samtools index",
+                SAMTOOLS,
+                "index",
                 paste0(folder,
                        "/REVtmp.bam;"),
-                "samtools rmdup",
+                SAMTOOLS,
+                "rmdup",
                 paste0(folder,
                        "/REVtmp.bam"),
                 paste0(folder,
@@ -140,12 +169,12 @@ align = function(exp, ref, cores = 20, dedup = T, empericalCentre = F, verbose =
 
   # select FWD reads mapping to integration ------------------------------------
   if(verbose){message('Filtering FWD')}
-  system2(command = 'samtools', args = c('view',
+  system2(command = SAMTOOLS, args = c('view',
                                          '-H',
                                          paste0(folder,"/FWD.bam")),
           stdout = paste0(folder,"/FWD.sam"))
 
-  system2(command = 'samtools', args = c('view',
+  system2(command = SAMTOOLS, args = c('view',
                                          paste0(folder,"/FWD.bam")),
           stdout = paste0(folder,"/FWDgrep.sam"))
 
@@ -159,7 +188,7 @@ align = function(exp, ref, cores = 20, dedup = T, empericalCentre = F, verbose =
                 " >> ",
                 paste0(folder,"/FWD.sam"))  )
 
-  system2(command = 'samtools', args = c('view',
+  system2(command = SAMTOOLS, args = c('view',
                                          '-Sb',
                                          paste0(folder,"/FWD.sam")),
           stdout = paste0(folder,"/FWD.bam"))
@@ -173,12 +202,12 @@ align = function(exp, ref, cores = 20, dedup = T, empericalCentre = F, verbose =
 
   # select REV reads mapping to integration ------------------------------------
   if(verbose){message('Filtering REV')}
-  system2(command = 'samtools', args = c('view',
+  system2(command = SAMTOOLS, args = c('view',
                                          '-H',
                                          paste0(folder,"/REV.bam")),
           stdout = paste0(folder,"/REV.sam"))
 
-  system2(command = 'samtools', args = c('view',
+  system2(command = SAMTOOLS, args = c('view',
                                          paste0(folder,"/REV.bam")),
           stdout = paste0(folder,"/REVgrep.sam"))
 
@@ -192,7 +221,7 @@ align = function(exp, ref, cores = 20, dedup = T, empericalCentre = F, verbose =
                 " >> ",
                 paste0(folder,"/REV.sam"))  )
 
-  system2(command = 'samtools', args = c('view',
+  system2(command = SAMTOOLS, args = c('view',
                                          '-Sb',
                                          paste0(folder,"/REV.sam")),
           stdout = paste0(folder,"/REV.bam"))
