@@ -5,7 +5,7 @@
 \title{align}
 \usage{
 align(exp, ref, cores = 20, dedup = T, empericalCentre = F,
-  verbose = F)
+  BWA_path = NULL, samtools_path = NULL, verbose = F)
 }
 \arguments{
 \item{exp}{The tagMeppr-object of a sample.}
@@ -25,6 +25,10 @@ insertion. Can be T, F or numeric:
 have to be the case when you loaded a BAC containing the insertion.}
   \item{numeric}{Will use this number as the postion of the middle.}
 }}
+
+\item{BWA_path}{A string to the complete BWA-path.}
+
+\item{samtools_path}{A string to the complete samtools-path.}
 
 \item{verbose}{Do you want a more chatty function?}
 }

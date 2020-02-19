@@ -5,7 +5,8 @@
 \title{makeIndex}
 \usage{
 makeIndex(indexPath, bsgenome = NULL, ITR = "PiggyBac",
-  targetInsertionSite = "TTAA", blockSizeMult = NULL, verbose = F)
+  targetInsertionSite = "TTAA", blockSizeMult = NULL,
+  BWA_path = NULL, verbose = F)
 }
 \arguments{
 \item{indexPath}{A path to the folder to store the reference-files.}
@@ -20,6 +21,8 @@ makeIndex(indexPath, bsgenome = NULL, ITR = "PiggyBac",
 left NULL, will use calculate optimal value. Change only when absolutely
 needed and when you have read
 \href{https://github.com/lh3/bwa/issues/104}{this thread}.}
+
+\item{BWA_path}{A string to the complete BWA-path.}
 
 \item{verbose}{Do you want a more chatty function?}
 }

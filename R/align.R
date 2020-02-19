@@ -60,29 +60,26 @@
 #'
 align = function(exp, ref, cores = 20, dedup = T, empericalCentre = F, BWA_path = NULL, samtools_path = NULL, verbose = F){
 
-  if(system('bwa version',ignore.stderr = T, ignore.stdout = T) == 127){
+  BWA <- NULL
+  if(is.null(BWA_path)){
+    BWA <- system('which bwa', intern = T)
+  } else if(!is.null(BWA_path)){
+    BWA <- BWA_path
+  } else {
     stop('bwa not found')
   }
 
-  BWA <- NULL
-  if(is.null(BWA_path)){
-    BWA <- system('which bwa')
-  } else {
-    BWA <- BWA_path
-  }
-  
-  if(system('samtools version',ignore.stderr = T, ignore.stdout = T) == 127){
-    stop('samtools not found')
-  }
-  
+
   SAMTOOLS <- NULL
   if(is.null(samtools_path)){
-    SAMTOOLS <- system('which samtools')
-  } else {
+    SAMTOOLS <- system('which samtools', intern = T)
+  } else if(!is.null(samtools_path)){
     SAMTOOLS <- samtools_path
+  } else {
+    stop('samtools not found')
   }
 
-  folder = paste0('/tmp/',runIDgen(1))
+   folder = paste0('/tmp/',runIDgen(1))
 
   while(dir.exists(folder)){
     folder = paste0('/tmp/',runIDgen(1))

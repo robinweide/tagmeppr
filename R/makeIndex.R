@@ -48,16 +48,13 @@
 #'
 makeIndex = function(indexPath, bsgenome = NULL, ITR = "PiggyBac", targetInsertionSite = 'TTAA', blockSizeMult = NULL, BWA_path = NULL, verbose = F){
 
-
-  if(system('bwa version',ignore.stderr = T, ignore.stdout = T) == 127){
-    stop('bwa not found')
-  }
-  
   BWA <- NULL
   if(is.null(BWA_path)){
-    BWA <- system('which bwa')
-  } else {
+    BWA <- system('which bwa', intern = T)
+  } else if(!is.null(BWA_path)){
     BWA <- BWA_path
+  } else {
+    stop('bwa not found')
   }
   ################################################################# load bsgenome
   if(verbose){message('Loading references')}
