@@ -11,6 +11,7 @@
 #' left NULL, will use calculate optimal value. Change only when absolutely
 #' needed and when you have read
 #' \href{https://github.com/lh3/bwa/issues/104}{this thread}.
+#' @param BWA_path A string to the complete BWA-path.
 #' @param verbose Do you want a more chatty function?
 #'
 #' @examples
